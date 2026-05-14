@@ -29,6 +29,7 @@ public class PartsController(AppDbContext db) : ControllerBase
                 p.Id,
                 p.PartNo,
                 p.Description,
+                p.CostPrice,
                 p.SellPrice,
                 p.StockQty,
                 Category = p.Category.Name

@@ -57,4 +57,19 @@ export const api = {
 
   // Suppliers
   getSuppliers: () => request('/suppliers'),
+
+  // Purchase Orders
+  listPOs: (status) =>
+    request(`/purchaseorders${status ? `?status=${status}` : ''}`),
+
+  getPO: (id) => request(`/purchaseorders/${id}`),
+
+  createPO: (body) =>
+    request('/purchaseorders', { method: 'POST', body: JSON.stringify(body) }),
+
+  receivePOStock: (id, body) =>
+    request(`/purchaseorders/${id}/receive`, { method: 'PUT', body: JSON.stringify(body) }),
+
+  cancelPO: (id) =>
+    request(`/purchaseorders/${id}/cancel`, { method: 'PUT', body: JSON.stringify({}) }),
 };
