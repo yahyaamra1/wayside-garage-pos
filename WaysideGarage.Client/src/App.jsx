@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login/Login';
 import Layout from './components/Layout/Layout';
 import POSPage from './pages/POS/POSPage';
+import ReturnsPage from './pages/Returns/ReturnsPage';
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('wg_token');
@@ -23,6 +24,7 @@ export default function App() {
         >
           <Route index element={<Navigate to="/pos" replace />} />
           <Route path="pos" element={<POSPage />} />
+          <Route path="returns" element={<ReturnsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

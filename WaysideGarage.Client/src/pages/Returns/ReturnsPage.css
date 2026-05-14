@@ -1,0 +1,254 @@
+.ret-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ret-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px 0;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.ret-page-title { font-size: 18px; font-weight: 600; }
+
+.ret-tabs { display: flex; gap: 4px; }
+
+.ret-tab {
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 0;
+  padding: 10px 16px;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+}
+
+.ret-tab.active {
+  color: var(--accent-light);
+  border-bottom-color: var(--accent-primary);
+}
+
+.ret-tab:hover:not(.active) { color: var(--text-primary); }
+
+.ret-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* ── Shared panel ──────────────────────────────── */
+.ret-panel { display: flex; flex-direction: column; gap: 18px; max-width: 820px; }
+
+.ret-section-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+
+.ret-error {
+  color: var(--danger-text);
+  background: rgba(139,32,32,0.18);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.ret-success {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(26,122,74,0.18);
+  border: 1px solid var(--success);
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: var(--success-text);
+  font-size: 13px;
+}
+
+.ret-success-dismiss {
+  background: transparent;
+  color: var(--success-text);
+  padding: 2px 8px;
+  font-size: 12px;
+  border: 1px solid var(--success);
+}
+
+/* ── Lookup form ──────────────────────────────── */
+.ret-lookup-form { display: flex; flex-direction: column; gap: 6px; }
+
+.ret-lookup-form label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.ret-lookup-row { display: flex; gap: 8px; }
+
+.ret-lookup-row input { flex: 1; }
+
+.ret-lookup-btn {
+  background: var(--accent-primary);
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 8px 18px;
+}
+
+.ret-lookup-btn:hover:not(:disabled) { background: var(--accent-light); }
+
+/* ── Sale info ─────────────────────────────────── */
+.ret-sale-info {
+  display: flex;
+  gap: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.ret-sale-info strong { color: var(--text-primary); }
+
+/* ── Lines table ──────────────────────────────── */
+.ret-lines-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ret-lines-table th {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.ret-lines-table td {
+  padding: 9px 12px;
+  border-top: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.ret-lines-table tr.ret-line-exhausted { opacity: 0.4; }
+
+.ret-partno { font-family: monospace; font-weight: 600; color: var(--accent-light); }
+
+.ret-already { color: var(--warning-text); }
+
+.ret-reason { color: var(--text-muted); font-size: 12px; max-width: 180px; }
+
+.ret-qty-input { width: 64px; text-align: center; padding: 4px 8px; }
+
+/* ── Return options ───────────────────────────── */
+.ret-options { display: flex; flex-direction: column; gap: 14px; }
+
+.ret-field { display: flex; flex-direction: column; gap: 6px; }
+
+.ret-field label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.ret-outcome-btns { display: flex; gap: 8px; }
+
+.ret-outcome-btn {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px;
+}
+
+.ret-outcome-btn.selected {
+  background: rgba(30,111,217,0.18);
+  border-color: var(--accent-primary);
+  color: var(--accent-light);
+}
+
+.ret-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.ret-checkbox-label input { width: auto; cursor: pointer; }
+
+.ret-return-total {
+  font-size: 15px;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.ret-confirm-btn {
+  background: var(--accent-primary);
+  color: #fff;
+  font-weight: 600;
+  padding: 11px;
+  align-self: flex-start;
+  min-width: 200px;
+}
+
+.ret-confirm-btn:hover:not(:disabled) { background: var(--accent-light); }
+
+/* ── Supplier return form ─────────────────────── */
+.ret-sup-form { display: flex; flex-direction: column; gap: 16px; }
+
+.ret-row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.ret-part-search-wrap { position: relative; }
+
+.ret-part-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 10px;
+  color: var(--text-muted);
+}
+
+.ret-part-bar input { background: transparent; border: none; flex: 1; padding: 8px 0; }
+
+.ret-part-icon { flex-shrink: 0; }
+
+.ret-part-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  list-style: none;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ret-part-dropdown li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.ret-part-dropdown li:hover { background: var(--bg-base); }
+
+.ret-part-no { font-family: monospace; font-weight: 600; color: var(--accent-light); min-width: 90px; }
+
+.ret-part-stock { margin-left: auto; color: var(--text-muted); font-size: 12px; }
+
+.ret-part-info { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── Recent supplier returns ──────────────────── */
+.ret-recent { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+
+.ret-recent-title { font-size: 14px; font-weight: 600; color: var(--text-muted); }

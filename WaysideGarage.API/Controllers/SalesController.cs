@@ -107,6 +107,46 @@ public class SalesController(AppDbContext db) : ControllerBase
         }
     }
 
+    [HttpGet("lookup")]
+    public async Task<IActionResult> LookupSale([FromQuery] string? invoiceNo, [FromQuery] int? customerId)
+    {
+        if (string.IsNullOrWhiteSpace(invoiceNo) && customerId is null)
+            return BadRequest(new { success = false, error = "Provide invoiceNo or customerId." });
+
+        IQueryable<Sale> query = db.Sales
+            .Include(s => s.Customer)
+            .Include(s => s.Lines).ThenInclude(l => l.Part)
+            .Where(s => s.Status == SaleStatus.Completed);
+
+        if (!string.IsNullOrWhiteSpace(invoiceNo) && int.TryParse(invoiceNo, out var id))
+            query = query.Where(s => s.Id == id);
+        else if (customerId.HasValue)
+            query = query.Where(s => s.CustomerId == customerId).OrderByDescending(s => s.Date).Take(10);
+
+        var sales = await query.Select(s => new
+        {
+            s.Id,
+            Date = s.Date.ToLocalTime(),
+            Customer = s.Customer == null ? "Walk-in" : s.Customer.Name,
+            s.Total,
+            Lines = s.Lines.Select(l => new
+            {
+                l.Id,
+                l.Part.PartNo,
+                l.Part.Description,
+                l.Qty,
+                l.UnitPrice,
+                l.DiscountPct,
+                l.LineTotal
+            })
+        }).ToListAsync();
+
+        if (sales.Count == 0)
+            return NotFound(new { success = false, error = "No sale found." });
+
+        return Ok(new { success = true, data = sales });
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSale(int id)
     {
