@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WaysideGarage.Core.Data;
 
@@ -10,9 +11,11 @@ using WaysideGarage.Core.Data;
 namespace WaysideGarage.Core.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260514133224_AddCustomerPayment")]
+    partial class AddCustomerPayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
@@ -510,7 +513,7 @@ namespace WaysideGarage.Core.Migrations
                             Id = 1,
                             FullName = "Administrator",
                             IsActive = true,
-                            PasswordHash = "$2a$11$7PLzj19LmYzfM7OKMHDeUe0dpKfxCRGTZfy7hqK4NjcHB.3UTMlXK",
+                            PasswordHash = "$2a$11$VXJb3R3UtMyuT4sbrBNcpORTHsCKU7s505XTpeSRXhwdqn3l0Zbfy",
                             Role = 0,
                             Username = "admin"
                         });

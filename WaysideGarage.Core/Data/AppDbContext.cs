@@ -84,7 +84,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             Id = 1,
             Username = "admin",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+            PasswordHash = "$2a$11$7PLzj19LmYzfM7OKMHDeUe0dpKfxCRGTZfy7hqK4NjcHB.3UTMlXK",
             FullName = "Administrator",
             Role = UserRole.Admin,
             IsActive = true
