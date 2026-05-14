@@ -5,6 +5,7 @@ import POSPage from './pages/POS/POSPage';
 import ReturnsPage from './pages/Returns/ReturnsPage';
 import PurchaseOrdersPage from './pages/PurchaseOrders/PurchaseOrdersPage';
 import InventoryPage from './pages/Inventory/InventoryPage';
+import CustomersPage from './pages/Customers/CustomersPage';
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('wg_token');
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="inventory" element={<InventoryPage />} />
           <Route path="returns" element={<ReturnsPage />} />
           <Route path="orders" element={<PurchaseOrdersPage />} />
+          <Route path="customers" element={<CustomersPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
     public DbSet<POLine> POLines => Set<POLine>();
     public DbSet<StockAdjustment> StockAdjustments => Set<StockAdjustment>();
+    public DbSet<CustomerPayment> CustomerPayments => Set<CustomerPayment>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -60,6 +61,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         b.Entity<POLine>(e =>
         {
             e.Property(l => l.UnitCost).HasColumnType("decimal(18,2)");
+        });
+
+        b.Entity<CustomerPayment>(e =>
+        {
+            e.Property(p => p.Amount).HasColumnType("decimal(18,2)");
         });
 
         // Seed data

@@ -44,6 +44,13 @@ export const api = {
 
   // Customers
   searchCustomers: (q) => request(`/customers/search?q=${encodeURIComponent(q)}`),
+  listCustomers: (queryString) => request(`/customers${queryString ? `?${queryString}` : ''}`),
+  getCustomer: (id) => request(`/customers/${id}`),
+  getCustomerStatement: (id) => request(`/customers/${id}/statement`),
+  createCustomer: (body) => request('/customers', { method: 'POST', body: JSON.stringify(body) }),
+  updateCustomer: (id, body) => request(`/customers/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  deactivateCustomer: (id) => request(`/customers/${id}`, { method: 'DELETE' }),
+  recordPayment: (id, body) => request(`/customers/${id}/payment`, { method: 'POST', body: JSON.stringify(body) }),
 
   // Suppliers
   getSuppliers: () => request('/suppliers'),

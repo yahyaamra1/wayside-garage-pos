@@ -12,4 +12,5 @@ public class Customer
     public bool IsActive { get; set; } = true;
 
     public ICollection<Sale> Sales { get; set; } = [];
+    public ICollection<CustomerPayment> Payments { get; set; } = [];
 }
