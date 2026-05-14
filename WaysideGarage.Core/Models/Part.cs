@@ -18,4 +18,5 @@ public class Part
     public ICollection<SaleLine> SaleLines { get; set; } = [];
     public ICollection<SupplierReturn> SupplierReturns { get; set; } = [];
     public ICollection<POLine> POLines { get; set; } = [];
+    public ICollection<StockAdjustment> StockAdjustments { get; set; } = [];
 }
