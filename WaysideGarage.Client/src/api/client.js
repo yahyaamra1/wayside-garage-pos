@@ -73,6 +73,13 @@ export const api = {
     request('/returns/supplier', { method: 'POST', body: JSON.stringify(body) }),
   getRecentSupplierReturns: () => request('/returns/supplier/recent'),
 
+  // Reports
+  getReportSummary: (from, to) => request(`/reports/summary?from=${from}&to=${to}`),
+  getReportDaily: (from, to) => request(`/reports/daily?from=${from}&to=${to}`),
+  getReportTopParts: (from, to, limit = 10) => request(`/reports/top-parts?from=${from}&to=${to}&limit=${limit}`),
+  getReportLowStock: () => request('/reports/low-stock'),
+  getReportSupplierSpend: (from, to) => request(`/reports/supplier-spend?from=${from}&to=${to}`),
+
   // Purchase Orders
   listPOs: (status) =>
     request(`/purchaseorders${status ? `?status=${status}` : ''}`),
