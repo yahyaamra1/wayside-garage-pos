@@ -1,0 +1,117 @@
+.layout {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout-nav {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 12px;
+}
+
+.layout-nav-top { display: flex; flex-direction: column; gap: 28px; }
+
+.layout-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+}
+
+.layout-brand-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--accent-primary);
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+
+.layout-brand-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.08em;
+}
+
+.layout-brand-sub {
+  display: block;
+  font-size: 10px;
+  color: var(--accent-light);
+  letter-spacing: 0.1em;
+}
+
+.layout-nav-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.layout-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 7px;
+  color: var(--text-muted);
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.layout-nav-link:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.layout-nav-link.active {
+  background: rgba(30,111,217,0.18);
+  color: var(--accent-light);
+}
+
+.layout-nav-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.layout-user { flex: 1; min-width: 0; }
+
+.layout-user-name {
+  display: block;
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.layout-user-role {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.layout-logout {
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px;
+  flex-shrink: 0;
+}
+
+.layout-logout:hover { color: var(--danger-text); }
+
+.layout-main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
