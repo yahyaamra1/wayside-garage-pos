@@ -102,14 +102,16 @@ export default function CustomersPage() {
             value={q}
             onChange={e => setQ(e.target.value)}
           />
-          <label className="cust-filter-check">
-            <input type="checkbox" checked={tradeOnly} onChange={e => setTradeOnly(e.target.checked)} />
-            Trade only
-          </label>
-          <label className="cust-filter-check">
-            <input type="checkbox" checked={includeInactive} onChange={e => setIncludeInactive(e.target.checked)} />
-            Include inactive
-          </label>
+          <div className="cust-check-row">
+            <label className="toggle-label">
+              <input type="checkbox" checked={tradeOnly} onChange={e => setTradeOnly(e.target.checked)} />
+              Trade only
+            </label>
+            <label className="toggle-label">
+              <input type="checkbox" checked={includeInactive} onChange={e => setIncludeInactive(e.target.checked)} />
+              Include inactive
+            </label>
+          </div>
         </div>
 
         {loading ? (

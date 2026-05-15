@@ -105,11 +105,11 @@ export default function InventoryPage() {
           <option value="">All Categories</option>
           {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <label className="inv-toggle-label">
+        <label className="toggle-label">
           <input type="checkbox" checked={lowStockOnly} onChange={e => setLowStockOnly(e.target.checked)} />
           Low stock only
         </label>
-        <label className="inv-toggle-label">
+        <label className="toggle-label">
           <input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} />
           Show inactive
         </label>

@@ -26,11 +26,7 @@ export default function Layout() {
       <nav className="layout-nav">
         <div className="layout-nav-top">
           <div className="layout-brand">
-            <div className="layout-brand-icon" />
-            <div>
-              <span className="layout-brand-title">WAYSIDE</span>
-              <span className="layout-brand-sub">GARAGE</span>
-            </div>
+            <img src="/logo.jpg" alt="Wayside Garage" className="layout-brand-img" />
           </div>
 
           <ul className="layout-nav-links">

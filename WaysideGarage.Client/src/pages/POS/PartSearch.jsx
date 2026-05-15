@@ -1,43 +1,37 @@
-import { useState, useCallback, useRef } from 'react';
-import { Search } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Search, Plus } from 'lucide-react';
 import { api } from '../../api/client';
 
 export default function PartSearch({ onAdd }) {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [allParts, setAllParts] = useState([]);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const timerRef = useRef(null);
 
-  const search = useCallback((q) => {
-    clearTimeout(timerRef.current);
-    if (q.length < 2) { setResults([]); return; }
-    timerRef.current = setTimeout(async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await api.searchParts(q);
-        if (res?.success) setResults(res.data);
-        else setError('Search failed.');
-      } catch {
-        setError('Cannot reach server.');
-      } finally {
-        setLoading(false);
-      }
-    }, 280);
+  useEffect(() => {
+    api.listParts('').then(res => {
+      if (res?.success) setAllParts(res.data);
+      else setError('Failed to load parts.');
+    }).catch(() => setError('Cannot reach server.')).finally(() => setLoading(false));
   }, []);
 
-  function handleChange(e) {
-    const val = e.target.value;
-    setQuery(val);
-    search(val);
-  }
+  const categories = useMemo(() => {
+    const cats = [...new Set(allParts.map(p => p.category?.name ?? p.category))].filter(Boolean).sort();
+    return ['All', ...cats];
+  }, [allParts]);
 
-  function handleAdd(part) {
-    onAdd(part);
-    setQuery('');
-    setResults([]);
-  }
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase();
+    return allParts.filter(p => {
+      const matchCat = activeCategory === 'All' || (p.category?.name ?? p.category) === activeCategory;
+      const matchQ = !q || p.partNo.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+      return matchCat && matchQ;
+    });
+  }, [allParts, query, activeCategory]);
+
+  if (loading) return <div className="pos-parts-loading">Loading parts…</div>;
+  if (error) return <div className="pos-search-error">{error}</div>;
 
   return (
     <div className="pos-search">
@@ -47,52 +41,54 @@ export default function PartSearch({ onAdd }) {
           type="text"
           placeholder="Search by part number or description…"
           value={query}
-          onChange={handleChange}
+          onChange={e => setQuery(e.target.value)}
           autoFocus
         />
       </div>
 
-      {error && <p className="pos-search-error">{error}</p>}
+      <div className="pos-cat-filters">
+        {categories.map(cat => (
+          <button
+            key={cat}
+            className={`pos-cat-btn ${activeCategory === cat ? 'active' : ''}`}
+            onClick={() => setActiveCategory(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
 
-      {results.length > 0 && (
-        <div className="pos-results">
-          <table className="pos-results-table">
-            <thead>
-              <tr>
-                <th>Part No</th>
-                <th>Description</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map(p => (
-                <tr key={p.id} className={p.stockQty === 0 ? 'out-of-stock' : ''}>
-                  <td className="part-no">{p.partNo}</td>
-                  <td>{p.description}</td>
-                  <td className="muted">{p.category}</td>
-                  <td className="price">R {p.sellPrice.toFixed(2)}</td>
-                  <td className={p.stockQty <= 3 ? 'stock-low' : 'stock-ok'}>{p.stockQty}</td>
-                  <td>
-                    <button
-                      className="pos-add-btn"
-                      onClick={() => handleAdd(p)}
-                      disabled={p.stockQty === 0}
-                    >
-                      Add
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {filtered.length === 0 ? (
+        <p className="pos-no-results">No parts found{query ? ` for "${query}"` : ''}.</p>
+      ) : (
+        <div className="pos-parts-grid">
+          {filtered.map(p => (
+            <div
+              key={p.id}
+              className={`pos-part-card ${p.stockQty === 0 ? 'out-of-stock' : ''}`}
+              onClick={() => p.stockQty > 0 && onAdd(p)}
+            >
+              <div className="pos-part-card-top">
+                <span className="pos-part-no">{p.partNo}</span>
+                <span className={`pos-part-stock ${p.stockQty === 0 ? 'stock-zero' : p.stockQty <= 3 ? 'stock-low' : 'stock-ok'}`}>
+                  {p.stockQty === 0 ? 'Out of stock' : `${p.stockQty} in stock`}
+                </span>
+              </div>
+              <div className="pos-part-desc">{p.description}</div>
+              <div className="pos-part-card-bottom">
+                <span className="pos-part-cat">{p.category?.name ?? p.category}</span>
+                <span className="pos-part-price">R {p.sellPrice.toFixed(2)}</span>
+                <button
+                  className="pos-add-btn"
+                  disabled={p.stockQty === 0}
+                  onClick={e => { e.stopPropagation(); onAdd(p); }}
+                >
+                  <Plus size={13} />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-      )}
-
-      {query.length >= 2 && !loading && results.length === 0 && !error && (
-        <p className="pos-no-results">No parts found for "{query}"</p>
       )}
     </div>
   );

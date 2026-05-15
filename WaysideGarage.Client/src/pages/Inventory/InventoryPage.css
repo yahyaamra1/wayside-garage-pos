@@ -5,6 +5,7 @@
   overflow: hidden;
   padding: 20px 24px;
   gap: 16px;
+  animation: fadeIn 0.2s ease both;
 }
 
 /* ── Stats bar ───────────────────────────────── */

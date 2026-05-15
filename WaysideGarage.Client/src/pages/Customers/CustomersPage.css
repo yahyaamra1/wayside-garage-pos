@@ -3,6 +3,7 @@
 .cust-page {
   display: flex;
   height: 100%;
+  animation: fadeIn 0.2s ease both;
   overflow: hidden;
 }
 
@@ -65,13 +66,9 @@
   border-color: var(--accent-primary);
 }
 
-.cust-filter-check {
+.cust-check-row {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  cursor: pointer;
+  gap: 8px;
 }
 
 /* ── Customer list ──────────────────────────────────────────────────── */
