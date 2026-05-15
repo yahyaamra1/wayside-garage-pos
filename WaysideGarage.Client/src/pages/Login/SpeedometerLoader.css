@@ -1,0 +1,28 @@
+.speedo-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 9, 15, 0.92);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.2s ease both;
+}
+
+.speedo-svg {
+  width: 220px;
+  height: 220px;
+  filter: drop-shadow(0 0 24px rgba(220, 40, 40, 0.25));
+}
+
+/* Needle sweeps from -135deg to +135deg around the SVG centre (100,100) */
+@keyframes needleSweep {
+  0%   { transform: rotate(-135deg); }
+  100% { transform: rotate(135deg); }
+}
+
+.speedo-needle-group {
+  transform-origin: 100px 100px;
+  animation: needleSweep 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
