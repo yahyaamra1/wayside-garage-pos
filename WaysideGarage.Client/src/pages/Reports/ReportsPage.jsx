@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Printer, RefreshCw, TrendingUp, ShoppingCart, RotateCcw, CreditCard, AlertTriangle, Package } from 'lucide-react';
+import { Printer, RefreshCw, TrendingUp, ShoppingCart, RotateCcw, CreditCard, Package, BarChart2, Truck } from 'lucide-react';
 import { api } from '../../api/client';
 import './ReportsPage.css';
 
@@ -130,30 +130,54 @@ export default function ReportsPage() {
 
       {error && <div className="rep-error no-print">{error}</div>}
 
-      {/* ── KPI Cards ── */}
-      {summary && (
-        <div className="rep-kpi-row no-print">
-          <div className="rep-kpi-card">
-            <div className="rep-kpi-icon-wrap accent-bg"><ShoppingCart size={16} /></div>
-            <div>
-              <span className="rep-kpi-label">Transactions</span>
-              <span className="rep-kpi-value">{summary.saleCount}</span>
-            </div>
+      {/* ── KPI Cards (act as tab navigation) ── */}
+      <div className="rep-kpi-row no-print">
+
+        <button className={`rep-kpi-card rep-kpi-btn ${tab === 'overview' ? 'active' : ''}`} onClick={() => setTab('overview')}>
+          <div className="rep-kpi-icon-wrap accent-bg"><TrendingUp size={16} /></div>
+          <div>
+            <span className="rep-kpi-label">Overview</span>
+            <span className="rep-kpi-value accent">{summary ? fmtR(summary.grossRevenue) : '—'}</span>
           </div>
-          <div className="rep-kpi-card">
-            <div className="rep-kpi-icon-wrap accent-bg"><TrendingUp size={16} /></div>
-            <div>
-              <span className="rep-kpi-label">Gross Revenue</span>
-              <span className="rep-kpi-value accent">{fmtR(summary.grossRevenue)}</span>
-            </div>
+        </button>
+
+        <button className={`rep-kpi-card rep-kpi-btn ${tab === 'transactions' ? 'active' : ''}`} onClick={() => setTab('transactions')}>
+          <div className="rep-kpi-icon-wrap accent-bg"><ShoppingCart size={16} /></div>
+          <div>
+            <span className="rep-kpi-label">Transactions</span>
+            <span className="rep-kpi-value">{summary ? summary.saleCount : '—'}</span>
           </div>
-          <div className="rep-kpi-card">
-            <div className="rep-kpi-icon-wrap success-bg"><TrendingUp size={16} /></div>
-            <div>
-              <span className="rep-kpi-label">Net Revenue</span>
-              <span className="rep-kpi-value success">{fmtR(summary.netRevenue)}</span>
-            </div>
+        </button>
+
+        <button className={`rep-kpi-card rep-kpi-btn ${tab === 'parts' ? 'active' : ''}`} onClick={() => setTab('parts')}>
+          <div className="rep-kpi-icon-wrap accent-bg"><BarChart2 size={16} /></div>
+          <div>
+            <span className="rep-kpi-label">Top Parts</span>
+            <span className="rep-kpi-value">{topParts.length > 0 ? topParts[0].partNo : '—'}</span>
           </div>
+        </button>
+
+        <button className={`rep-kpi-card rep-kpi-btn ${tab === 'lowstock' ? 'active' : ''}`} onClick={() => setTab('lowstock')}>
+          <div className={`rep-kpi-icon-wrap ${lowStock.length > 0 ? 'danger-bg' : 'success-bg'}`}><Package size={16} /></div>
+          <div>
+            <span className="rep-kpi-label">Low Stock</span>
+            <span className={`rep-kpi-value ${lowStock.length > 0 ? 'danger' : 'success'}`}>
+              {lowStock.length} part{lowStock.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        </button>
+
+        <button className={`rep-kpi-card rep-kpi-btn ${tab === 'suppliers' ? 'active' : ''}`} onClick={() => setTab('suppliers')}>
+          <div className="rep-kpi-icon-wrap warning-bg"><Truck size={16} /></div>
+          <div>
+            <span className="rep-kpi-label">Supplier Spend</span>
+            <span className="rep-kpi-value warning">
+              {fmtR(supplierSpend.reduce((a, s) => a + s.totalSpend, 0))}
+            </span>
+          </div>
+        </button>
+
+        {summary && (
           <div className="rep-kpi-card">
             <div className="rep-kpi-icon-wrap warning-bg"><RotateCcw size={16} /></div>
             <div>
@@ -161,7 +185,12 @@ export default function ReportsPage() {
               <span className="rep-kpi-value warning">{fmtR(summary.totalReturns)}</span>
             </div>
           </div>
-          <div className="rep-kpi-card">
+        )}
+
+        {summary && (
+          <div className={`rep-kpi-card ${summary.totalTradeBalance > 0 ? 'rep-kpi-btn' : ''}`}
+            onClick={summary.totalTradeBalance > 0 ? undefined : undefined}
+          >
             <div className="rep-kpi-icon-wrap warning-bg"><CreditCard size={16} /></div>
             <div>
               <span className="rep-kpi-label">Trade Outstanding</span>
@@ -170,40 +199,8 @@ export default function ReportsPage() {
               </span>
             </div>
           </div>
-          <div className="rep-kpi-card">
-            <div className={`rep-kpi-icon-wrap ${lowStock.length > 0 ? 'danger-bg' : 'success-bg'}`}>
-              <Package size={16} />
-            </div>
-            <div>
-              <span className="rep-kpi-label">Low Stock Parts</span>
-              <span className={`rep-kpi-value ${lowStock.length > 0 ? 'danger' : 'success'}`}>
-                {lowStock.length}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* ── Tabs ── */}
-      <div className="rep-tabs no-print">
-        {[
-          ['overview',     'Overview'],
-          ['transactions', 'Transactions'],
-          ['parts',        'Top Parts'],
-          ['lowstock',     'Low Stock'],
-          ['suppliers',    'Supplier Spend'],
-        ].map(([key, label]) => (
-          <button
-            key={key}
-            className={`rep-tab ${tab === key ? 'active' : ''}`}
-            onClick={() => setTab(key)}
-          >
-            {label}
-            {key === 'lowstock' && lowStock.length > 0 && (
-              <span className="rep-tab-badge">{lowStock.length}</span>
-            )}
-          </button>
-        ))}
       </div>
 
       {/* ── Tab content ── */}

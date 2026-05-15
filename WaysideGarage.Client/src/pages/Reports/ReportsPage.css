@@ -109,6 +109,25 @@
 
 .rep-kpi-card:hover { border-color: var(--accent-primary); }
 
+.rep-kpi-btn {
+  cursor: pointer;
+  background: none;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.rep-kpi-btn:hover {
+  border-color: var(--accent-primary);
+  background: color-mix(in srgb, var(--accent-primary) 6%, transparent);
+}
+
+.rep-kpi-btn.active {
+  border-color: var(--accent-primary);
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+  box-shadow: 0 0 0 1px var(--accent-primary) inset;
+}
+
 .rep-kpi-card > div:last-child {
   display: flex;
   flex-direction: column;
