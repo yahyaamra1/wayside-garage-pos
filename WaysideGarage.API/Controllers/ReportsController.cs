@@ -100,10 +100,21 @@ public class ReportsController(AppDbContext db) : ControllerBase
     {
         var (utcFrom, utcTo) = NormaliseRange(from, to);
 
-        var top = await db.SaleLines
+        var rawLines = await db.SaleLines
             .Where(l => l.Sale.Status == SaleStatus.Completed &&
                         l.Sale.Date >= utcFrom && l.Sale.Date < utcTo)
-            .GroupBy(l => new { l.PartId, l.Part.PartNo, l.Part.Description })
+            .Select(l => new
+            {
+                l.PartId,
+                l.Part.PartNo,
+                l.Part.Description,
+                l.Qty,
+                l.LineTotal
+            })
+            .ToListAsync();
+
+        var top = rawLines
+            .GroupBy(l => new { l.PartId, l.PartNo, l.Description })
             .Select(g => new
             {
                 g.Key.PartId,
@@ -114,7 +125,7 @@ public class ReportsController(AppDbContext db) : ControllerBase
             })
             .OrderByDescending(x => x.Revenue)
             .Take(limit)
-            .ToListAsync();
+            .ToList();
 
         return Ok(new { success = true, data = top });
     }
@@ -150,23 +161,121 @@ public class ReportsController(AppDbContext db) : ControllerBase
     {
         var (utcFrom, utcTo) = NormaliseRange(from, to);
 
-        var spend = await db.POLines
+        var rawLines = await db.POLines
             .Where(l => (l.PurchaseOrder.Status == POStatus.Received ||
                          l.PurchaseOrder.Status == POStatus.PartialReceived) &&
                         l.PurchaseOrder.Date >= utcFrom && l.PurchaseOrder.Date < utcTo &&
                         l.QtyReceived > 0)
-            .GroupBy(l => new { l.PurchaseOrder.SupplierId, l.PurchaseOrder.Supplier.Name })
+            .Select(l => new
+            {
+                SupplierId = l.PurchaseOrder.SupplierId,
+                SupplierName = l.PurchaseOrder.Supplier.Name,
+                l.PurchaseOrderId,
+                Spend = (decimal)l.QtyReceived * l.UnitCost
+            })
+            .ToListAsync();
+
+        var spend = rawLines
+            .GroupBy(l => new { l.SupplierId, l.SupplierName })
             .Select(g => new
             {
                 SupplierId = g.Key.SupplierId,
-                SupplierName = g.Key.Name,
+                SupplierName = g.Key.SupplierName,
                 OrderCount = g.Select(l => l.PurchaseOrderId).Distinct().Count(),
-                TotalSpend = g.Sum(l => l.QtyReceived * l.UnitCost)
+                TotalSpend = g.Sum(l => l.Spend)
             })
             .OrderByDescending(x => x.TotalSpend)
-            .ToListAsync();
+            .ToList();
 
         return Ok(new { success = true, data = spend });
+    }
+
+    // ── Individual sales detail ──────────────────────────────────────────
+
+    [HttpGet("sales-detail")]
+    public async Task<IActionResult> SalesDetail(
+        [FromQuery] DateTime? from,
+        [FromQuery] DateTime? to)
+    {
+        var (utcFrom, utcTo) = NormaliseRange(from, to);
+
+        var raw = await db.Sales
+            .Where(s => s.Status == SaleStatus.Completed &&
+                        s.Date >= utcFrom && s.Date < utcTo)
+            .Select(s => new
+            {
+                s.Id,
+                s.Date,
+                s.Total,
+                s.PaymentMethod,
+                CustomerName = s.Customer != null ? s.Customer.Name : null,
+                Lines = s.Lines.Select(l => new
+                {
+                    l.Part.PartNo,
+                    l.Part.Description,
+                    l.Qty,
+                    l.LineTotal
+                }).ToList()
+            })
+            .OrderBy(s => s.Date)
+            .ToListAsync();
+
+        var sales = raw.Select(s => new
+        {
+            s.Id,
+            InvoiceNo     = $"INV-{s.Id:D5}",
+            Date          = s.Date.ToLocalTime(),
+            s.Total,
+            PaymentMethod = s.PaymentMethod.ToString(),
+            Customer      = s.CustomerName,
+            s.Lines
+        });
+
+        return Ok(new { success = true, data = sales });
+    }
+
+    // ── Daily items breakdown ────────────────────────────────────────────
+
+    [HttpGet("daily-items")]
+    public async Task<IActionResult> DailyItems(
+        [FromQuery] DateTime? from,
+        [FromQuery] DateTime? to)
+    {
+        var (utcFrom, utcTo) = NormaliseRange(from, to);
+
+        var rawLines = await db.SaleLines
+            .Where(l => l.Sale.Status == SaleStatus.Completed &&
+                        l.Sale.Date >= utcFrom && l.Sale.Date < utcTo)
+            .Select(l => new
+            {
+                Date      = l.Sale.Date,
+                l.Part.PartNo,
+                l.Part.Description,
+                l.Qty,
+                l.LineTotal
+            })
+            .ToListAsync();
+
+        var result = rawLines
+            .GroupBy(l => l.Date.ToLocalTime().Date)
+            .Select(g => new
+            {
+                Date  = g.Key,
+                Items = g.GroupBy(l => new { l.PartNo, l.Description })
+                         .Select(ig => new
+                         {
+                             ig.Key.PartNo,
+                             ig.Key.Description,
+                             Qty       = ig.Sum(l => l.Qty),
+                             LineTotal = ig.Sum(l => l.LineTotal)
+                         })
+                         .OrderByDescending(x => x.LineTotal)
+                         .ToList()
+            })
+            .OrderBy(d => d.Date)
+            .ToList();
+
+        return Ok(new { success = true, data = result });
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

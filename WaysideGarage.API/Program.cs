@@ -43,6 +43,13 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+app.UseExceptionHandler(err => err.Run(async ctx =>
+{
+    ctx.Response.StatusCode = 500;
+    ctx.Response.ContentType = "application/json";
+    await ctx.Response.WriteAsJsonAsync(new { success = false, error = "An unexpected error occurred." });
+}));
+
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

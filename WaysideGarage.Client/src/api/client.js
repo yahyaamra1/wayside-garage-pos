@@ -79,6 +79,8 @@ export const api = {
   getReportTopParts: (from, to, limit = 10) => request(`/reports/top-parts?from=${from}&to=${to}&limit=${limit}`),
   getReportLowStock: () => request('/reports/low-stock'),
   getReportSupplierSpend: (from, to) => request(`/reports/supplier-spend?from=${from}&to=${to}`),
+  getReportDailyItems: (from, to) => request(`/reports/daily-items?from=${from}&to=${to}`),
+  getReportSalesDetail: (from, to) => request(`/reports/sales-detail?from=${from}&to=${to}`),
 
   // Purchase Orders
   listPOs: (status) =>
