@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Printer, RefreshCw, TrendingUp, ShoppingCart, RotateCcw, CreditCard, Package, BarChart2, Truck } from 'lucide-react';
 import { api } from '../../api/client';
 import './ReportsPage.css';
@@ -57,7 +58,8 @@ export default function ReportsPage() {
   const [loading,       setLoading]       = useState(false);
   const [error,         setError]         = useState(null);
 
-  const slipRef = useRef(null);
+  const slipRef   = useRef(null);
+  const navigate  = useNavigate();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -188,9 +190,7 @@ export default function ReportsPage() {
         )}
 
         {summary && (
-          <div className={`rep-kpi-card ${summary.totalTradeBalance > 0 ? 'rep-kpi-btn' : ''}`}
-            onClick={summary.totalTradeBalance > 0 ? undefined : undefined}
-          >
+          <button className="rep-kpi-card rep-kpi-btn" onClick={() => navigate('/customers?trade=1')}>
             <div className="rep-kpi-icon-wrap warning-bg"><CreditCard size={16} /></div>
             <div>
               <span className="rep-kpi-label">Trade Outstanding</span>
@@ -198,7 +198,7 @@ export default function ReportsPage() {
                 {fmtR(summary.totalTradeBalance)}
               </span>
             </div>
-          </div>
+          </button>
         )}
 
       </div>

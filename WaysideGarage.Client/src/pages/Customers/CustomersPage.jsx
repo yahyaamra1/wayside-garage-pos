@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../../api/client';
 import CustomerDetail from './CustomerDetail';
 import CustomerForm from './CustomerForm';
@@ -14,12 +15,14 @@ function useDebounce(value, delay = 280) {
 }
 
 export default function CustomersPage() {
+  const [searchParams] = useSearchParams();
+
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [q, setQ] = useState('');
-  const [tradeOnly, setTradeOnly] = useState(false);
+  const [tradeOnly, setTradeOnly] = useState(searchParams.get('trade') === '1');
   const [includeInactive, setIncludeInactive] = useState(false);
 
   const debouncedQ = useDebounce(q);
