@@ -29,7 +29,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -104,7 +104,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.CustomerPayment", b =>
@@ -137,7 +137,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CustomerPayments");
+                    b.ToTable("CustomerPayments", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.CustomerReturn", b =>
@@ -182,7 +182,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CustomerReturns");
+                    b.ToTable("CustomerReturns", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.POLine", b =>
@@ -212,7 +212,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("PurchaseOrderId");
 
-                    b.ToTable("POLines");
+                    b.ToTable("POLines", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.Part", b =>
@@ -259,7 +259,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("SupplierId");
 
-                    b.ToTable("Parts");
+                    b.ToTable("Parts", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.PurchaseOrder", b =>
@@ -289,7 +289,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PurchaseOrders");
+                    b.ToTable("PurchaseOrders", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.Sale", b =>
@@ -331,7 +331,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Sales");
+                    b.ToTable("Sales", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.SaleLine", b =>
@@ -364,7 +364,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("SaleId");
 
-                    b.ToTable("SaleLines");
+                    b.ToTable("SaleLines", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.StockAdjustment", b =>
@@ -401,7 +401,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("StockAdjustments");
+                    b.ToTable("StockAdjustments", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.Supplier", b =>
@@ -431,7 +431,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.SupplierReturn", b =>
@@ -473,7 +473,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SupplierReturns");
+                    b.ToTable("SupplierReturns", (string)null);
                 });
 
             modelBuilder.Entity("WaysideGarage.Core.Models.User", b =>
@@ -502,7 +502,7 @@ namespace WaysideGarage.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new

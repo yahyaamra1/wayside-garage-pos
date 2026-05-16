@@ -89,5 +89,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             Role = UserRole.Admin,
             IsActive = true
         });
+
     }
 }
