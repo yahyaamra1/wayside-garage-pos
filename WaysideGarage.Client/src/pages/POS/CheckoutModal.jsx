@@ -4,7 +4,10 @@ import { api } from '../../api/client';
 const PAYMENT_METHODS = ['Cash', 'Card', 'Account'];
 
 export default function CheckoutModal({ lines, customer, totalDiscount, onClose, onSuccess }) {
-  const [payMethod, setPayMethod] = useState('Cash');
+  const currentUser = JSON.parse(localStorage.getItem('wg_user') ?? '{}');
+  const allowCash = currentUser.allowCash !== false;
+
+  const [payMethod, setPayMethod] = useState(allowCash ? 'Cash' : 'Card');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -109,7 +112,7 @@ export default function CheckoutModal({ lines, customer, totalDiscount, onClose,
                 key={m}
                 className={'modal-pay-btn' + (payMethod === m ? ' selected' : '')}
                 onClick={() => setPayMethod(m)}
-                disabled={m === 'Account' && !customer?.isTradeAccount}
+                disabled={(m === 'Account' && !customer?.isTradeAccount) || (m === 'Cash' && !allowCash)}
               >
                 {m}
               </button>

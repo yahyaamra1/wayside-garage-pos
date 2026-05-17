@@ -128,7 +128,9 @@ public class PartsController(AppDbContext db) : ControllerBase
                 part.SellPrice,
                 part.StockQty,
                 part.ReorderLevel,
-                part.IsActive
+                part.IsActive,
+                part.ArrivalDate,
+                part.SupplierInvoiceNo
             }
         });
     }
@@ -156,7 +158,9 @@ public class PartsController(AppDbContext db) : ControllerBase
             SellPrice = req.SellPrice,
             StockQty = req.InitialStock ?? 0,
             ReorderLevel = req.ReorderLevel,
-            IsActive = true
+            IsActive = true,
+            ArrivalDate = req.ArrivalDate,
+            SupplierInvoiceNo = req.SupplierInvoiceNo?.Trim()
         };
 
         db.Parts.Add(part);
@@ -189,6 +193,8 @@ public class PartsController(AppDbContext db) : ControllerBase
         part.CostPrice = req.CostPrice;
         part.SellPrice = req.SellPrice;
         part.ReorderLevel = req.ReorderLevel;
+        part.ArrivalDate = req.ArrivalDate;
+        part.SupplierInvoiceNo = req.SupplierInvoiceNo?.Trim();
 
         await db.SaveChangesAsync();
         return Ok(new { success = true, data = new { } });
@@ -278,7 +284,9 @@ public record PartRequest(
     decimal CostPrice,
     decimal SellPrice,
     int ReorderLevel,
-    int? InitialStock
+    int? InitialStock,
+    DateTime? ArrivalDate,
+    string? SupplierInvoiceNo
 );
 
 public record StockAdjustRequest(int AdjustmentQty, string Reason);

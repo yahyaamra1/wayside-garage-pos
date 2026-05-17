@@ -226,6 +226,26 @@
   padding: 6px 10px;
 }
 
+.inv-margin-neg { color: var(--danger); }
+
+.inv-price-calc {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inv-price-calc-header {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .inv-form-footer {
   display: flex;
   gap: 10px;

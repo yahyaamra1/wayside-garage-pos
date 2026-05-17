@@ -82,6 +82,12 @@ export const api = {
   getReportDailyItems: (from, to) => request(`/reports/daily-items?from=${from}&to=${to}`),
   getReportSalesDetail: (from, to) => request(`/reports/sales-detail?from=${from}&to=${to}`),
 
+  // Users (admin)
+  listUsers: () => request('/users'),
+  createUser: (body) => request('/users', { method: 'POST', body: JSON.stringify(body) }),
+  setUserAllowCash: (id, allowCash) => request(`/users/${id}/allowcash`, { method: 'PATCH', body: JSON.stringify({ allowCash }) }),
+  setUserActive: (id, isActive) => request(`/users/${id}/active`, { method: 'PATCH', body: JSON.stringify({ isActive }) }),
+
   // Purchase Orders
   listPOs: (status) =>
     request(`/purchaseorders${status ? `?status=${status}` : ''}`),

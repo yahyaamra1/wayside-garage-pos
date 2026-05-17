@@ -9,9 +9,13 @@ export default function PartForm({ part, onSaved, onClose }) {
     categoryId: part?.categoryId ?? '',
     supplierId: part?.supplierId ?? '',
     costPrice: part?.costPrice ?? '',
+    vatPct: '15',
+    markupPct: '',
     sellPrice: part?.sellPrice ?? '',
     reorderLevel: part?.reorderLevel ?? 0,
-    initialStock: 0
+    initialStock: 0,
+    arrivalDate: part?.arrivalDate ? part.arrivalDate.split('T')[0] : '',
+    supplierInvoiceNo: part?.supplierInvoiceNo ?? ''
   });
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -27,6 +31,22 @@ export default function PartForm({ part, onSaved, onClose }) {
 
   function set(field, val) {
     setForm(prev => ({ ...prev, [field]: val }));
+  }
+
+  function calcSellPrice(costPrice, vatPct, markupPct) {
+    const cost = parseFloat(costPrice) || 0;
+    const vat = parseFloat(vatPct) || 0;
+    const markup = parseFloat(markupPct) || 0;
+    if (cost <= 0) return '';
+    const result = cost * (1 + vat / 100) * (1 + markup / 100);
+    return result.toFixed(2);
+  }
+
+  function handleCalcInput(field, val) {
+    const next = { ...form, [field]: val };
+    const computed = calcSellPrice(next.costPrice, next.vatPct, next.markupPct);
+    if (computed) next.sellPrice = computed;
+    setForm(next);
   }
 
   async function addCategory() {
@@ -53,7 +73,9 @@ export default function PartForm({ part, onSaved, onClose }) {
         costPrice: parseFloat(form.costPrice) || 0,
         sellPrice: parseFloat(form.sellPrice) || 0,
         reorderLevel: parseInt(form.reorderLevel) || 0,
-        initialStock: isEdit ? null : parseInt(form.initialStock) || 0
+        initialStock: isEdit ? null : parseInt(form.initialStock) || 0,
+        arrivalDate: form.arrivalDate || null,
+        supplierInvoiceNo: form.supplierInvoiceNo || null
       };
 
       const res = isEdit
@@ -68,6 +90,11 @@ export default function PartForm({ part, onSaved, onClose }) {
       setLoading(false);
     }
   }
+
+  const margin = parseFloat(form.sellPrice) - parseFloat(form.costPrice);
+  const marginPct = parseFloat(form.costPrice) > 0
+    ? (margin / parseFloat(form.costPrice)) * 100
+    : null;
 
   return (
     <div className="inv-form-overlay">
@@ -122,41 +149,86 @@ export default function PartForm({ part, onSaved, onClose }) {
             </div>
           </div>
 
+          {/* Price calculator */}
+          <div className="inv-price-calc">
+            <div className="inv-price-calc-header">Pricing</div>
+            <div className="inv-form-row">
+              <div className="inv-field">
+                <label>Cost Price (R) *</label>
+                <input
+                  type="number" min="0" step="0.01"
+                  value={form.costPrice}
+                  onChange={e => handleCalcInput('costPrice', e.target.value)}
+                  placeholder="0.00"
+                />
+              </div>
+              <div className="inv-field">
+                <label>VAT %</label>
+                <input
+                  type="number" min="0" step="0.5"
+                  value={form.vatPct}
+                  onChange={e => handleCalcInput('vatPct', e.target.value)}
+                  placeholder="15"
+                />
+              </div>
+              <div className="inv-field">
+                <label>Markup %</label>
+                <input
+                  type="number" min="0" step="1"
+                  value={form.markupPct}
+                  onChange={e => handleCalcInput('markupPct', e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <div className="inv-form-row">
+              <div className="inv-field">
+                <label>Sell Price (R) *</label>
+                <input
+                  type="number" min="0" step="0.01"
+                  value={form.sellPrice}
+                  onChange={e => set('sellPrice', e.target.value)}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <div className="inv-field inv-field-hint">
+                {form.costPrice && form.sellPrice ? (
+                  <p className={`inv-margin-hint ${marginPct !== null && marginPct < 0 ? 'inv-margin-neg' : ''}`}>
+                    Margin: R {margin.toFixed(2)}{' '}
+                    {marginPct !== null ? `(${marginPct.toFixed(1)}%)` : ''}
+                  </p>
+                ) : (
+                  <p className="inv-margin-hint">Enter cost + VAT% + markup% to auto-fill sell price</p>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="inv-form-row">
-            <div className="inv-field">
-              <label>Cost Price (R)</label>
-              <input type="number" min="0" step="0.01" value={form.costPrice} onChange={e => set('costPrice', e.target.value)} placeholder="0.00" />
-            </div>
-            <div className="inv-field">
-              <label>Sell Price (R)</label>
-              <input type="number" min="0" step="0.01" value={form.sellPrice} onChange={e => set('sellPrice', e.target.value)} placeholder="0.00" required />
-            </div>
             <div className="inv-field">
               <label>Reorder Level</label>
               <input type="number" min="0" value={form.reorderLevel} onChange={e => set('reorderLevel', e.target.value)} />
             </div>
-          </div>
-
-          {!isEdit && (
-            <div className="inv-form-row">
+            {!isEdit && (
               <div className="inv-field">
                 <label>Opening Stock</label>
                 <input type="number" min="0" value={form.initialStock} onChange={e => set('initialStock', e.target.value)} />
               </div>
-              <div className="inv-field inv-field-hint">
-                <p>Opening stock can only be set on creation. Use stock adjustment to correct stock later.</p>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {form.costPrice && form.sellPrice && (
-            <p className="inv-margin-hint">
-              Margin: R {(parseFloat(form.sellPrice) - parseFloat(form.costPrice)).toFixed(2)}
-              {' '}({parseFloat(form.costPrice) > 0
-                ? (((parseFloat(form.sellPrice) - parseFloat(form.costPrice)) / parseFloat(form.costPrice)) * 100).toFixed(1)
-                : '—'}%)
-            </p>
-          )}
+          {/* Supplier details */}
+          <div className="inv-form-row">
+            <div className="inv-field">
+              <label>Arrival Date</label>
+              <input type="date" value={form.arrivalDate} onChange={e => set('arrivalDate', e.target.value)} />
+            </div>
+            <div className="inv-field">
+              <label>Supplier Invoice No</label>
+              <input type="text" value={form.supplierInvoiceNo} onChange={e => set('supplierInvoiceNo', e.target.value)} placeholder="INV-XXXXX" />
+            </div>
+          </div>
 
           {error && <p className="ret-error">{error}</p>}
 

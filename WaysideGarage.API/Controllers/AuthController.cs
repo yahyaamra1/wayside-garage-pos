@@ -45,7 +45,7 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             data = new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
-                user = new { user.Id, user.Username, user.FullName, role = user.Role.ToString() }
+                user = new { user.Id, user.Username, user.FullName, role = user.Role.ToString(), allowCash = user.AllowCash }
             }
         });
     }

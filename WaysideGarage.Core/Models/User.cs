@@ -10,6 +10,7 @@ public class User
     public string FullName { get; set; } = string.Empty;
     public UserRole Role { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool AllowCash { get; set; } = true;
 
     public ICollection<Sale> Sales { get; set; } = [];
 }

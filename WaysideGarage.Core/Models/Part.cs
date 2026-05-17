@@ -12,6 +12,8 @@ public class Part
     public int StockQty { get; set; }
     public int ReorderLevel { get; set; }
     public bool IsActive { get; set; } = true;
+    public DateTime? ArrivalDate { get; set; }
+    public string? SupplierInvoiceNo { get; set; }
 
     public Category Category { get; set; } = null!;
     public Supplier? Supplier { get; set; }

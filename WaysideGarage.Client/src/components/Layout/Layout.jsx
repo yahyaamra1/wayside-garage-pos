@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Package, RotateCcw, FileText, Users, BarChart2, LogOut } from 'lucide-react';
+import { ShoppingCart, Package, RotateCcw, FileText, Users, BarChart2, LogOut, UserCog } from 'lucide-react';
 import './Layout.css';
 
 const NAV = [
@@ -9,6 +9,7 @@ const NAV = [
   { to: '/orders',    icon: FileText,     label: 'Purchase Orders' },
   { to: '/customers', icon: Users,        label: 'Customers' },
   { to: '/reports',   icon: BarChart2,    label: 'Reports' },
+  { to: '/users',     icon: UserCog,      label: 'Users', adminOnly: true },
 ];
 
 export default function Layout() {
@@ -30,7 +31,7 @@ export default function Layout() {
           </div>
 
           <ul className="layout-nav-links">
-            {NAV.map(({ to, icon: Icon, label }) => (
+            {NAV.filter(n => !n.adminOnly || user.role === 'Admin').map(({ to, icon: Icon, label }) => (
               <li key={to}>
                 <NavLink to={to} className={({ isActive }) =>
                   'layout-nav-link' + (isActive ? ' active' : '')

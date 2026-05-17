@@ -20,6 +20,14 @@ public class SalesController(AppDbContext db) : ControllerBase
 
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+        // Cash restriction check
+        if (req.PaymentMethod == "Cash")
+        {
+            var cashier = await db.Users.FindAsync(userId);
+            if (cashier is { AllowCash: false })
+                return BadRequest(new { success = false, error = "You are not authorised to accept cash payments." });
+        }
+
         // Credit warning check
         if (req.CustomerId.HasValue && !req.AcknowledgedCreditWarning)
         {

@@ -1,0 +1,216 @@
+.usr-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.2s ease both;
+}
+
+.usr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.usr-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.usr-btn-primary {
+  background: var(--accent-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+.usr-btn-primary:hover { background: var(--accent-light); }
+
+.usr-loading, .usr-error {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 20px 0;
+}
+.usr-error { color: var(--danger); }
+
+.usr-table-wrap {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.usr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.usr-table th {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.usr-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.usr-table tr:last-child td { border-bottom: none; }
+
+.usr-row-inactive td { opacity: 0.5; }
+
+.usr-username {
+  font-family: monospace;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.usr-role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.usr-role-badge.admin { background: color-mix(in srgb, var(--accent-primary) 20%, transparent); color: var(--accent-light); }
+.usr-role-badge.cashier { background: color-mix(in srgb, var(--text-muted) 15%, transparent); color: var(--text-muted); }
+
+.usr-toggle {
+  border: none;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.usr-toggle.on { background: color-mix(in srgb, var(--success) 25%, transparent); color: #4ade80; }
+.usr-toggle.off { background: color-mix(in srgb, var(--warning) 25%, transparent); color: #facc15; }
+
+.usr-status {
+  font-size: 12px;
+  font-weight: 500;
+}
+.usr-status.active { color: #4ade80; }
+.usr-status.inactive { color: var(--text-muted); }
+
+.usr-btn-sm {
+  border: none;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.usr-btn-sm.danger { background: color-mix(in srgb, var(--danger) 20%, transparent); color: #f87171; }
+.usr-btn-sm.success { background: color-mix(in srgb, var(--success) 20%, transparent); color: #4ade80; }
+
+/* Form overlay */
+.usr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.usr-form-panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 440px;
+  max-width: 95vw;
+  overflow: hidden;
+}
+
+.usr-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.usr-form-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.usr-form-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.usr-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+}
+
+.usr-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.usr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.usr-field label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.usr-field input,
+.usr-field select {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.usr-field input:focus,
+.usr-field select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.usr-error-msg {
+  color: var(--danger);
+  font-size: 13px;
+  margin: 0;
+}
+
+.usr-form-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
