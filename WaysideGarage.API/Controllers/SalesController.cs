@@ -106,6 +106,42 @@ public class SalesController(AppDbContext db) : ControllerBase
             await db.SaveChangesAsync();
             await tx.CommitAsync();
 
+            // Queue balance alert if trade account exceeds 80% of credit limit
+            if (req.CustomerId.HasValue && req.PaymentMethod == "Account")
+            {
+                var cust = await db.Customers.FindAsync(req.CustomerId.Value);
+                if (cust is { IsTradeAccount: true } && cust.CreditLimit > 0
+                    && cust.Balance >= cust.CreditLimit * 0.8m
+                    && !string.IsNullOrWhiteSpace(cust.Email))
+                {
+                    var pct = (cust.Balance / cust.CreditLimit * 100).ToString("0");
+                    var body = $"""
+                        <html><body style="font-family:Arial,sans-serif;color:#333">
+                        <h2 style="color:#c0392b">Account Balance Alert</h2>
+                        <p>Dear {cust.Name},</p>
+                        <p>Your account balance at <strong>Wayside Garage &amp; Motor Spares</strong>
+                        has reached <strong>R {cust.Balance:F2}</strong> ({pct}% of your
+                        R {cust.CreditLimit:F2} credit limit).</p>
+                        <p>Please arrange payment at your earliest convenience to avoid any
+                        disruption to your account.</p>
+                        <p>Regards,<br/>Wayside Garage &amp; Motor Spares</p>
+                        </body></html>
+                        """;
+
+                    db.EmailQueue.Add(new EmailQueue
+                    {
+                        ToEmail = cust.Email,
+                        ToName = cust.Name,
+                        Subject = $"Account Balance Alert — R {cust.Balance:F2} outstanding",
+                        Body = body,
+                        Type = EmailType.BalanceAlert,
+                        Status = EmailStatus.Pending,
+                        RelatedId = cust.Id
+                    });
+                    await db.SaveChangesAsync();
+                }
+            }
+
             return Ok(new { success = true, data = new { sale.Id } });
         }
         catch

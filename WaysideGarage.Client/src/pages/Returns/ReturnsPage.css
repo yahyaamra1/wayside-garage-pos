@@ -145,6 +145,16 @@
 
 .ret-qty-input { width: 64px; text-align: center; padding: 4px 8px; }
 
+.ret-pdf-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-light);
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.ret-pdf-link:hover { color: var(--text-primary); }
+
 /* ── Return options ───────────────────────────── */
 .ret-options { display: flex; flex-direction: column; gap: 14px; }
 

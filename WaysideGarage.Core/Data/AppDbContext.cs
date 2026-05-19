@@ -18,6 +18,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<POLine> POLines => Set<POLine>();
     public DbSet<StockAdjustment> StockAdjustments => Set<StockAdjustment>();
     public DbSet<CustomerPayment> CustomerPayments => Set<CustomerPayment>();
+    public DbSet<EmailQueue> EmailQueue => Set<EmailQueue>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {

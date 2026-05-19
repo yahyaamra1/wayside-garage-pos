@@ -9,6 +9,7 @@ public class SupplierReturn
     public int Qty { get; set; }
     public string Reason { get; set; } = string.Empty;
     public string? DebitNoteNo { get; set; }
+    public string? SupplierInvoiceNo { get; set; }
     public decimal UnitCost { get; set; }
     public int UserId { get; set; }
 

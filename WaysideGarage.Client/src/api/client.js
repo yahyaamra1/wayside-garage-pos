@@ -36,6 +36,14 @@ export const api = {
   updatePart: (id, body) => request(`/parts/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   deactivatePart: (id) => request(`/parts/${id}`, { method: 'DELETE' }),
   adjustStock: (id, body) => request(`/parts/${id}/adjust`, { method: 'POST', body: JSON.stringify(body) }),
+  uploadPartImage: (id, formData) => {
+    const token = localStorage.getItem('wg_token');
+    return fetch(`${BASE}/parts/${id}/image`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData
+    }).then(r => r.json());
+  },
 
   // Categories
   getCategories: () => request('/categories'),
@@ -72,6 +80,7 @@ export const api = {
   supplierReturn: (body) =>
     request('/returns/supplier', { method: 'POST', body: JSON.stringify(body) }),
   getRecentSupplierReturns: () => request('/returns/supplier/recent'),
+  downloadSupplierReturnPdf: (id) => `${BASE}/returns/supplier/${id}/pdf`,
 
   // Reports
   getReportSummary: (from, to) => request(`/reports/summary?from=${from}&to=${to}`),
@@ -81,6 +90,12 @@ export const api = {
   getReportSupplierSpend: (from, to) => request(`/reports/supplier-spend?from=${from}&to=${to}`),
   getReportDailyItems: (from, to) => request(`/reports/daily-items?from=${from}&to=${to}`),
   getReportSalesDetail: (from, to) => request(`/reports/sales-detail?from=${from}&to=${to}`),
+
+  // Email queue (admin)
+  listEmailQueue: (status) => request(`/email-queue${status ? `?status=${status}` : ''}`),
+  getEmailBody: (id) => request(`/email-queue/${id}/body`),
+  approveEmail: (id) => request(`/email-queue/${id}/approve`, { method: 'POST' }),
+  rejectEmail: (id) => request(`/email-queue/${id}/reject`, { method: 'POST' }),
 
   // Users (admin)
   listUsers: () => request('/users'),

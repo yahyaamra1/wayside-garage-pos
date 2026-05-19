@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 using WaysideGarage.Core.Models;
 
@@ -176,7 +177,8 @@ public class ReturnsController(AppDbContext db) : ControllerBase
                 PartId = req.PartId,
                 Qty = req.Qty,
                 Reason = req.Reason,
-                DebitNoteNo = req.DebitNoteNo,
+                DebitNoteNo = req.DebitNoteNo?.Trim(),
+                SupplierInvoiceNo = req.SupplierInvoiceNo?.Trim(),
                 UnitCost = part.CostPrice,
                 UserId = userId,
                 Date = DateTime.UtcNow
@@ -194,6 +196,23 @@ public class ReturnsController(AppDbContext db) : ControllerBase
             await tx.RollbackAsync();
             return StatusCode(500, new { success = false, error = "Failed to process supplier return." });
         }
+    }
+
+    [HttpGet("supplier/{id}/pdf")]
+    public async Task<IActionResult> SupplierReturnPdf(int id)
+    {
+        var ret = await db.SupplierReturns
+            .Include(r => r.Supplier)
+            .Include(r => r.Part)
+            .Include(r => r.User)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (ret is null)
+            return NotFound(new { success = false, error = "Return not found." });
+
+        var pdf = PdfService.GenerateSupplierReturnPdf(ret);
+        var fileName = $"SupplierReturn-{ret.DebitNoteNo ?? id.ToString()}.pdf";
+        return File(pdf, "application/pdf", fileName);
     }
 
     [HttpGet("supplier/recent")]
@@ -217,6 +236,7 @@ public class ReturnsController(AppDbContext db) : ControllerBase
                 TotalCost = r.Qty * r.UnitCost,
                 r.Reason,
                 r.DebitNoteNo,
+                r.SupplierInvoiceNo,
                 Cashier = r.User.FullName
             })
             .ToListAsync();
@@ -240,5 +260,6 @@ public record SupplierReturnRequest(
     int PartId,
     int Qty,
     string Reason,
-    string? DebitNoteNo
+    string? DebitNoteNo,
+    string? SupplierInvoiceNo
 );

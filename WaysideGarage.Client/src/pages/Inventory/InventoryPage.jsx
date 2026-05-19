@@ -132,6 +132,7 @@ export default function InventoryPage() {
           <table className="inv-table">
             <thead>
               <tr>
+                <th></th>
                 <th>Part No</th>
                 <th>Description</th>
                 <th>Category</th>
@@ -146,6 +147,12 @@ export default function InventoryPage() {
             <tbody>
               {parts.map(p => (
                 <tr key={p.id} className={!p.isActive ? 'inv-row-inactive' : ''}>
+                  <td style={{ width: 44, padding: '6px 8px' }}>
+                    {p.imagePath
+                      ? <img className="inv-part-thumb" src={p.imagePath} alt="" />
+                      : <div style={{ width: 36, height: 36, borderRadius: 4, background: 'var(--bg-elevated)', border: '1px solid var(--border)' }} />
+                    }
+                  </td>
                   <td className="inv-partno">{p.partNo}</td>
                   <td>{p.description}</td>
                   <td className="inv-muted">{p.category}</td>

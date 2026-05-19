@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Package, RotateCcw, FileText, Users, BarChart2, LogOut, UserCog } from 'lucide-react';
+import { ShoppingCart, Package, RotateCcw, FileText, Users, BarChart2, LogOut, UserCog, Mail } from 'lucide-react';
 import './Layout.css';
 
 const NAV = [
@@ -9,7 +9,8 @@ const NAV = [
   { to: '/orders',    icon: FileText,     label: 'Purchase Orders' },
   { to: '/customers', icon: Users,        label: 'Customers' },
   { to: '/reports',   icon: BarChart2,    label: 'Reports' },
-  { to: '/users',     icon: UserCog,      label: 'Users', adminOnly: true },
+  { to: '/users',       icon: UserCog, label: 'Users',        adminOnly: true },
+  { to: '/email-queue', icon: Mail,    label: 'Email Queue',  adminOnly: true },
 ];
 
 export default function Layout() {

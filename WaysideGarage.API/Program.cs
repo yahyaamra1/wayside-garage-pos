@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddHostedService<LowStockEmailService>();
 
 // In production the React app is served from wwwroot — CORS only needed in dev
 if (builder.Environment.IsDevelopment())

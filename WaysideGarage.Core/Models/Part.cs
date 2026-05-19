@@ -14,6 +14,7 @@ public class Part
     public bool IsActive { get; set; } = true;
     public DateTime? ArrivalDate { get; set; }
     public string? SupplierInvoiceNo { get; set; }
+    public string? ImagePath { get; set; }
 
     public Category Category { get; set; } = null!;
     public Supplier? Supplier { get; set; }

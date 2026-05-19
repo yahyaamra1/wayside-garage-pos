@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search } from 'lucide-react';
+import { Search, FileDown } from 'lucide-react';
 import { api } from '../../api/client';
 
 export default function SupplierReturn() {
@@ -11,6 +11,7 @@ export default function SupplierReturn() {
   const [qty, setQty] = useState('');
   const [reason, setReason] = useState('');
   const [debitNoteNo, setDebitNoteNo] = useState('');
+  const [supplierInvoiceNo, setSupplierInvoiceNo] = useState('');
   const [recentReturns, setRecentReturns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -60,12 +61,13 @@ export default function SupplierReturn() {
         partId: selectedPart.id,
         qty: qtyNum,
         reason,
-        debitNoteNo: debitNoteNo.trim() || null
+        debitNoteNo: debitNoteNo.trim() || null,
+        supplierInvoiceNo: supplierInvoiceNo.trim() || null
       });
       if (res?.success) {
         setSuccess(`Return processed. Total value: R ${res.data.totalCost.toFixed(2)}`);
         setSupplierId(''); setPartQuery(''); setSelectedPart(null);
-        setQty(''); setReason(''); setDebitNoteNo('');
+        setQty(''); setReason(''); setDebitNoteNo(''); setSupplierInvoiceNo('');
         loadRecent();
       } else {
         setError(res?.error ?? 'Return failed.');
@@ -152,6 +154,15 @@ export default function SupplierReturn() {
               placeholder="e.g. DN-00123"
             />
           </div>
+          <div className="ret-field">
+            <label>Supplier Invoice No. (optional)</label>
+            <input
+              type="text"
+              value={supplierInvoiceNo}
+              onChange={e => setSupplierInvoiceNo(e.target.value)}
+              placeholder="e.g. INV-56789"
+            />
+          </div>
         </div>
 
         <div className="ret-field">
@@ -182,8 +193,10 @@ export default function SupplierReturn() {
                 <th>Part No</th>
                 <th>Qty</th>
                 <th>Total Value</th>
+                <th>Supplier Inv.</th>
                 <th>Debit Note</th>
                 <th>Reason</th>
+                <th>PDF</th>
               </tr>
             </thead>
             <tbody>
@@ -194,8 +207,20 @@ export default function SupplierReturn() {
                   <td className="ret-partno">{r.partNo}</td>
                   <td>{r.qty}</td>
                   <td>R {r.totalCost.toFixed(2)}</td>
+                  <td>{r.supplierInvoiceNo ?? '—'}</td>
                   <td>{r.debitNoteNo ?? '—'}</td>
                   <td className="ret-reason">{r.reason}</td>
+                  <td>
+                    <a
+                      href={api.downloadSupplierReturnPdf(r.id)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="ret-pdf-link"
+                      title="Download PDF"
+                    >
+                      <FileDown size={15} />
+                    </a>
+                  </td>
                 </tr>
               ))}
             </tbody>

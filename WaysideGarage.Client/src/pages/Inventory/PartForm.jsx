@@ -17,6 +17,9 @@ export default function PartForm({ part, onSaved, onClose }) {
     arrivalDate: part?.arrivalDate ? part.arrivalDate.split('T')[0] : '',
     supplierInvoiceNo: part?.supplierInvoiceNo ?? ''
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(part?.imagePath ?? null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -82,8 +85,18 @@ export default function PartForm({ part, onSaved, onClose }) {
         ? await api.updatePart(part.id, body)
         : await api.createPart(body);
 
-      if (res?.success) onSaved();
-      else setError(res?.error ?? 'Save failed.');
+      if (!res?.success) { setError(res?.error ?? 'Save failed.'); return; }
+
+      const savedId = isEdit ? part.id : res.data.id;
+      if (imageFile && savedId) {
+        setImageUploading(true);
+        const fd = new FormData();
+        fd.append('file', imageFile);
+        await api.uploadPartImage(savedId, fd);
+        setImageUploading(false);
+      }
+
+      onSaved();
     } catch {
       setError('Cannot reach server.');
     } finally {
@@ -218,6 +231,28 @@ export default function PartForm({ part, onSaved, onClose }) {
             )}
           </div>
 
+          {/* Part image */}
+          <div className="inv-form-row">
+            <div className="inv-field">
+              <label>Part Image</label>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={e => {
+                  const f = e.target.files?.[0];
+                  if (!f) return;
+                  setImageFile(f);
+                  setImagePreview(URL.createObjectURL(f));
+                }}
+              />
+            </div>
+            {imagePreview && (
+              <div className="inv-field inv-image-preview">
+                <img src={imagePreview} alt="Part" />
+              </div>
+            )}
+          </div>
+
           {/* Supplier details */}
           <div className="inv-form-row">
             <div className="inv-field">
@@ -235,7 +270,7 @@ export default function PartForm({ part, onSaved, onClose }) {
           <div className="inv-form-footer">
             <button type="button" className="modal-btn-secondary" onClick={onClose}>Cancel</button>
             <button type="submit" className="modal-btn-primary" disabled={loading}>
-              {loading ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Part'}
+              {imageUploading ? 'Uploading image…' : loading ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Part'}
             </button>
           </div>
         </form>

@@ -90,6 +90,7 @@ public class PartsController(AppDbContext db) : ControllerBase
                 p.StockQty,
                 p.ReorderLevel,
                 p.IsActive,
+                p.ImagePath,
                 StockStatus = p.StockQty == 0 ? "OutOfStock"
                     : p.StockQty <= p.ReorderLevel ? "Low"
                     : "OK"
@@ -130,7 +131,8 @@ public class PartsController(AppDbContext db) : ControllerBase
                 part.ReorderLevel,
                 part.IsActive,
                 part.ArrivalDate,
-                part.SupplierInvoiceNo
+                part.SupplierInvoiceNo,
+                part.ImagePath
             }
         });
     }
@@ -213,6 +215,41 @@ public class PartsController(AppDbContext db) : ControllerBase
         part.IsActive = false;
         await db.SaveChangesAsync();
         return Ok(new { success = true, data = new { } });
+    }
+
+    // ── Image upload ─────────────────────────────────────────────────────
+
+    [HttpPost("{id}/image")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UploadImage(int id, IFormFile file)
+    {
+        if (file is null || file.Length == 0)
+            return BadRequest(new { success = false, error = "No file uploaded." });
+
+        var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
+        if (!allowed.Contains(file.ContentType.ToLower()))
+            return BadRequest(new { success = false, error = "Only JPEG, PNG and WebP images are allowed." });
+
+        if (file.Length > 5 * 1024 * 1024)
+            return BadRequest(new { success = false, error = "Image must be under 5MB." });
+
+        var part = await db.Parts.FindAsync(id);
+        if (part is null)
+            return NotFound(new { success = false, error = "Part not found." });
+
+        var ext = Path.GetExtension(file.FileName).ToLower();
+        var fileName = $"part-{id}{ext}";
+        var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "parts");
+        Directory.CreateDirectory(folder);
+        var filePath = Path.Combine(folder, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+            await file.CopyToAsync(stream);
+
+        part.ImagePath = $"/images/parts/{fileName}";
+        await db.SaveChangesAsync();
+
+        return Ok(new { success = true, data = new { imagePath = part.ImagePath } });
     }
 
     // ── Stock adjustment ─────────────────────────────────────────────────

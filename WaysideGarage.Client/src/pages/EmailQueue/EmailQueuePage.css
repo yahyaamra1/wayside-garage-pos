@@ -1,0 +1,194 @@
+.eq-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeIn 0.2s ease both;
+}
+
+.eq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eq-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent-light);
+}
+
+.eq-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.eq-badge {
+  background: color-mix(in srgb, var(--warning) 30%, transparent);
+  color: #facc15;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.eq-filters {
+  display: flex;
+  gap: 6px;
+}
+
+.eq-filter-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.eq-filter-btn.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+}
+
+.eq-loading, .eq-empty {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 32px 0;
+  text-align: center;
+}
+.eq-error { color: var(--danger); font-size: 14px; }
+
+.eq-table-wrap {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.eq-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.eq-table th {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.eq-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  vertical-align: top;
+}
+
+.eq-table tr:last-child td { border-bottom: none; }
+
+.eq-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.eq-type-badge.balance { background: color-mix(in srgb, var(--warning) 20%, transparent); color: #facc15; }
+.eq-type-badge.lowstock { background: color-mix(in srgb, var(--danger) 20%, transparent); color: #f87171; }
+.eq-type-badge.supplier { background: color-mix(in srgb, var(--accent-primary) 20%, transparent); color: var(--accent-light); }
+
+.eq-recipient-name { font-weight: 500; }
+.eq-recipient-email { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.eq-subject { max-width: 260px; }
+.eq-date { white-space: nowrap; color: var(--text-muted); font-size: 12px; }
+
+.eq-status { font-size: 12px; font-weight: 500; }
+.eq-status-pending  { color: #facc15; }
+.eq-status-approved { color: var(--accent-light); }
+.eq-status-sent     { color: #4ade80; }
+.eq-status-rejected { color: var(--text-muted); }
+.eq-status-failed   { color: #f87171; }
+
+.eq-sent-time { font-weight: 400; }
+.eq-error-msg { font-size: 11px; color: #f87171; margin-top: 3px; }
+
+.eq-actions { display: flex; gap: 6px; }
+
+.eq-action-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+.eq-action-btn:hover { color: var(--text-primary); }
+.eq-action-btn.approve { border-color: var(--success); color: #4ade80; }
+.eq-action-btn.approve:hover { background: color-mix(in srgb, var(--success) 20%, transparent); }
+.eq-action-btn.reject  { border-color: var(--danger); color: #f87171; }
+.eq-action-btn.reject:hover  { background: color-mix(in srgb, var(--danger) 20%, transparent); }
+.eq-action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Preview modal */
+.eq-preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 400;
+}
+
+.eq-preview-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 700px;
+  max-width: 95vw;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.eq-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.eq-preview-header button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.eq-preview-iframe {
+  flex: 1;
+  border: none;
+  background: white;
+}
