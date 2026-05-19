@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
-    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Jwt:Key is not configured.");
@@ -31,12 +31,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddCors(opt =>
-    opt.AddDefaultPolicy(p => p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
+// In production the React app is served from wwwroot — CORS only needed in dev
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(opt =>
+        opt.AddDefaultPolicy(p => p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
+}
 
 var app = builder.Build();
 
-// Apply migrations and seed on startup
+// Apply migrations on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -50,9 +54,18 @@ app.UseExceptionHandler(err => err.Run(async ctx =>
     await ctx.Response.WriteAsJsonAsync(new { success = false, error = "An unexpected error occurred." });
 }));
 
-app.UseCors();
+if (builder.Environment.IsDevelopment())
+    app.UseCors();
+
+// Serve React SPA in production
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Fallback for React client-side routing
+app.MapFallbackToFile("index.html");
 
 app.Run();

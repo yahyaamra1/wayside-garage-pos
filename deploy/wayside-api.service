@@ -1,0 +1,21 @@
+[Unit]
+Description=Wayside Garage POS API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=wayside
+WorkingDirectory=/var/www/wayside
+ExecStart=/usr/bin/dotnet /var/www/wayside/WaysideGarage.API.dll
+Restart=always
+RestartSec=5
+
+# Load secrets from environment file — never commit this file
+EnvironmentFile=/etc/wayside.env
+
+# Production environment
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://localhost:5000
+
+[Install]
+WantedBy=multi-user.target
