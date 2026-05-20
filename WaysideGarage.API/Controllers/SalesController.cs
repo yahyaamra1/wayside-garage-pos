@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 using WaysideGarage.Core.Models;
 
@@ -189,6 +190,22 @@ public class SalesController(AppDbContext db) : ControllerBase
             return NotFound(new { success = false, error = "No sale found." });
 
         return Ok(new { success = true, data = sales });
+    }
+
+    [HttpGet("{id}/receipt")]
+    public async Task<IActionResult> GetReceipt(int id)
+    {
+        var sale = await db.Sales
+            .Include(s => s.Customer)
+            .Include(s => s.User)
+            .Include(s => s.Lines).ThenInclude(l => l.Part)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (sale is null)
+            return NotFound(new { success = false, error = "Sale not found." });
+
+        var pdf = PdfService.GenerateSaleReceiptPdf(sale);
+        return File(pdf, "application/pdf", $"Invoice-{id:D6}.pdf");
     }
 
     [HttpGet("{id}")]

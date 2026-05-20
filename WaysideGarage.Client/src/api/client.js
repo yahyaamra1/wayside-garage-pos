@@ -67,6 +67,7 @@ export const api = {
   createSale: (body) =>
     request('/sales', { method: 'POST', body: JSON.stringify(body) }),
   getSale: (id) => request(`/sales/${id}`),
+  getSaleReceiptUrl: (id) => `${BASE}/sales/${id}/receipt`,
   lookupSale: (invoiceNo) =>
     request(`/sales/lookup?invoiceNo=${encodeURIComponent(invoiceNo)}`),
 

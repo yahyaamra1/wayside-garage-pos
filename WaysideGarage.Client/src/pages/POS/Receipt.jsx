@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Printer, ShoppingCart } from 'lucide-react';
+import { Printer, ShoppingCart, Download } from 'lucide-react';
 import { api } from '../../api/client';
 
 export default function Receipt({ saleId, onNewSale }) {
@@ -23,8 +23,16 @@ export default function Receipt({ saleId, onNewSale }) {
     <div className="pos-receipt-wrap">
       <div className="pos-receipt-actions no-print">
         <button className="pos-print-btn" onClick={() => window.print()}>
-          <Printer size={16} /> Print Receipt
+          <Printer size={16} /> Print
         </button>
+        <a
+          className="pos-print-btn"
+          href={api.getSaleReceiptUrl(saleId)}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Download size={16} /> Download PDF
+        </a>
         <button className="pos-new-sale-btn" onClick={onNewSale}>
           <ShoppingCart size={16} /> New Sale
         </button>
