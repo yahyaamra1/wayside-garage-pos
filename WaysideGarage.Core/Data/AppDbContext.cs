@@ -19,6 +19,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<StockAdjustment> StockAdjustments => Set<StockAdjustment>();
     public DbSet<CustomerPayment> CustomerPayments => Set<CustomerPayment>();
     public DbSet<EmailQueue> EmailQueue => Set<EmailQueue>();
+    public DbSet<JobCard> JobCards => Set<JobCard>();
+    public DbSet<JobCardLine> JobCardLines => Set<JobCardLine>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -67,6 +69,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         b.Entity<CustomerPayment>(e =>
         {
             e.Property(p => p.Amount).HasColumnType("decimal(18,2)");
+        });
+
+        b.Entity<JobCardLine>(e =>
+        {
+            e.Property(l => l.UnitPrice).HasColumnType("decimal(18,2)");
+            e.Property(l => l.Qty).HasColumnType("decimal(10,2)");
         });
 
         // Seed data

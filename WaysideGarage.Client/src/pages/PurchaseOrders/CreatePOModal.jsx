@@ -2,11 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { Search, Trash2, Plus } from 'lucide-react';
 import { api } from '../../api/client';
 
-export default function CreatePOModal({ onClose, onCreated }) {
+export default function CreatePOModal({ po, onClose, onCreated }) {
+  const isEdit = !!po;
   const [suppliers, setSuppliers] = useState([]);
-  const [supplierId, setSupplierId] = useState('');
-  const [notes, setNotes] = useState('');
-  const [lines, setLines] = useState([]);
+  const [supplierId, setSupplierId] = useState(po ? String(po.supplier.id) : '');
+  const [notes, setNotes] = useState(po?.notes ?? '');
+  const [lines, setLines] = useState(
+    po?.lines?.map(l => ({ partId: l.partId, partNo: l.partNo, description: l.description, qtyOrdered: l.qtyOrdered, unitCost: l.unitCost })) ?? []
+  );
   const [partQuery, setPartQuery] = useState('');
   const [partResults, setPartResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -61,13 +64,16 @@ export default function CreatePOModal({ onClose, onCreated }) {
 
     setLoading(true);
     try {
-      const res = await api.createPO({
+      const body = {
         supplierId: parseInt(supplierId),
         lines: lines.map(l => ({ partId: l.partId, qtyOrdered: l.qtyOrdered, unitCost: l.unitCost })),
         notes: notes.trim() || null
-      });
-      if (res?.success) onCreated(res.data.id);
-      else setError(res?.error ?? 'Failed to create PO.');
+      };
+      const res = isEdit
+        ? await api.editPO(po.id, body)
+        : await api.createPO(body);
+      if (res?.success) onCreated(isEdit ? po.id : res.data.id);
+      else setError(res?.error ?? (isEdit ? 'Failed to update PO.' : 'Failed to create PO.'));
     } catch {
       setError('Cannot reach server.');
     } finally {
@@ -80,7 +86,7 @@ export default function CreatePOModal({ onClose, onCreated }) {
   return (
     <div className="modal-overlay">
       <div className="po-create-modal">
-        <h3 className="modal-title">New Purchase Order</h3>
+        <h3 className="modal-title">{isEdit ? `Edit PO #${String(po.id).padStart(5, '0')}` : 'New Purchase Order'}</h3>
 
         <div className="po-create-fields">
           <div className="modal-field">
@@ -179,7 +185,7 @@ export default function CreatePOModal({ onClose, onCreated }) {
         <div className="modal-actions">
           <button className="modal-btn-secondary" onClick={onClose} disabled={loading}>Cancel</button>
           <button className="modal-btn-primary" onClick={submit} disabled={loading || lines.length === 0}>
-            {loading ? 'Creating…' : 'Create Purchase Order'}
+            {loading ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Purchase Order'}
           </button>
         </div>
       </div>

@@ -60,6 +60,21 @@ public class CategoriesController(AppDbContext db) : ControllerBase
 
         return Ok(new { success = true, data = new { cat.Id, cat.Name } });
     }
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var cat = await db.Categories.Include(c => c.Parts).FirstOrDefaultAsync(c => c.Id == id);
+        if (cat is null)
+            return NotFound(new { success = false, error = "Category not found." });
+
+        if (cat.Parts.Any())
+            return BadRequest(new { success = false, error = "Cannot delete a category that has parts assigned to it. Reassign the parts first." });
+
+        db.Categories.Remove(cat);
+        await db.SaveChangesAsync();
+        return Ok(new { success = true, data = new { } });
+    }
 }
 
 public record CategoryRequest(string Name);

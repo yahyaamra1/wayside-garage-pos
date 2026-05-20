@@ -278,6 +278,41 @@ public class ReportsController(AppDbContext db) : ControllerBase
         return Ok(new { success = true, data = result });
     }
 
+    // ── Till close ──────────────────────────────────────────────────────────
+
+    [HttpGet("till-close")]
+    public async Task<IActionResult> TillClose([FromQuery] DateTime? date)
+    {
+        var d = (date?.Date ?? DateTime.Today);
+        var utcFrom = d.ToUniversalTime();
+        var utcTo = d.AddDays(1).ToUniversalTime();
+
+        var sales = await db.Sales
+            .Where(s => s.Status == SaleStatus.Completed && s.Date >= utcFrom && s.Date < utcTo)
+            .ToListAsync();
+
+        var cash    = sales.Where(s => s.PaymentMethod == PaymentMethod.Cash).ToList();
+        var card    = sales.Where(s => s.PaymentMethod == PaymentMethod.Card).ToList();
+        var account = sales.Where(s => s.PaymentMethod == PaymentMethod.Account).ToList();
+
+        return Ok(new
+        {
+            success = true,
+            data = new
+            {
+                date         = d.ToString("yyyy-MM-dd"),
+                cashCount    = cash.Count,
+                cashTotal    = cash.Sum(s => s.Total),
+                cardCount    = card.Count,
+                cardTotal    = card.Sum(s => s.Total),
+                accountCount = account.Count,
+                accountTotal = account.Sum(s => s.Total),
+                totalCount   = sales.Count,
+                totalValue   = sales.Sum(s => s.Total)
+            }
+        });
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────
 
     private static (DateTime utcFrom, DateTime utcTo) NormaliseRange(DateTime? from, DateTime? to)

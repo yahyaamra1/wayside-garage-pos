@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Edit2 } from 'lucide-react';
 import { api } from '../../api/client';
 
 const STATUS_CLASS = {
@@ -15,7 +16,7 @@ const STATUS_LABEL = {
   Cancelled: 'Cancelled'
 };
 
-export default function PODetail({ po, onRefresh }) {
+export default function PODetail({ po, onRefresh, onEdit }) {
   const [receiveQtys, setReceiveQtys] = useState({});
   const [loading, setLoading] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -140,6 +141,11 @@ export default function PODetail({ po, onRefresh }) {
 
       {(canReceive || canCancel) && (
         <div className="po-detail-actions">
+          {canCancel && onEdit && (
+            <button className="po-edit-btn" onClick={onEdit}>
+              <Edit2 size={14} /> Edit PO
+            </button>
+          )}
           {canCancel && (
             <button className="po-cancel-btn" onClick={cancelPO} disabled={cancelling}>
               {cancelling ? 'Cancelling…' : 'Cancel Order'}

@@ -21,6 +21,7 @@ export default function PurchaseOrdersPage() {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedPO, setSelectedPO] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [editPO, setEditPO] = useState(null);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -122,7 +123,7 @@ export default function PurchaseOrdersPage() {
         {detailLoading ? (
           <p className="po-loading">Loading order…</p>
         ) : selectedPO ? (
-          <PODetail po={selectedPO} onRefresh={handleRefresh} />
+          <PODetail po={selectedPO} onRefresh={handleRefresh} onEdit={() => setEditPO(selectedPO)} />
         ) : (
           <div className="po-detail-empty">
             <p>Select a purchase order to view details</p>
@@ -134,6 +135,14 @@ export default function PurchaseOrdersPage() {
         <CreatePOModal
           onClose={() => setShowCreate(false)}
           onCreated={handleCreated}
+        />
+      )}
+
+      {editPO && (
+        <CreatePOModal
+          po={editPO}
+          onClose={() => setEditPO(null)}
+          onCreated={(id) => { setEditPO(null); handleRefresh(); selectPO(id); }}
         />
       )}
     </div>

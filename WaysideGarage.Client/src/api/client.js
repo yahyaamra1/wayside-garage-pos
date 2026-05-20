@@ -62,6 +62,29 @@ export const api = {
 
   // Suppliers
   getSuppliers: () => request('/suppliers'),
+  listSuppliers: (includeInactive = false) => request(`/suppliers${includeInactive ? '?includeInactive=true' : ''}`),
+  createSupplier: (body) => request('/suppliers', { method: 'POST', body: JSON.stringify(body) }),
+  updateSupplier: (id, body) => request(`/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  deactivateSupplier: (id) => request(`/suppliers/${id}`, { method: 'DELETE' }),
+
+  // Categories
+  deleteCategory: (id) => request(`/categories/${id}`, { method: 'DELETE' }),
+
+  // Job Cards
+  listJobCards: (status, q) => {
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (q) params.set('q', q);
+    const qs = params.toString();
+    return request(`/jobcards${qs ? `?${qs}` : ''}`);
+  },
+  getJobCard: (id) => request(`/jobcards/${id}`),
+  createJobCard: (body) => request('/jobcards', { method: 'POST', body: JSON.stringify(body) }),
+  updateJobCard: (id, body) => request(`/jobcards/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  updateJobCardStatus: (id, status) => request(`/jobcards/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+
+  // Till Close
+  getTillClose: (date) => request(`/reports/till-close?date=${date}`),
 
   // Sales
   createSale: (body) =>
@@ -114,4 +137,6 @@ export const api = {
     request(`/purchaseorders/${id}/receive`, { method: 'PUT', body: JSON.stringify(body) }),
   cancelPO: (id) =>
     request(`/purchaseorders/${id}/cancel`, { method: 'PUT', body: JSON.stringify({}) }),
+  editPO: (id, body) =>
+    request(`/purchaseorders/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
 };

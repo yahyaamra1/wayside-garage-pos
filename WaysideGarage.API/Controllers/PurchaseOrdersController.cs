@@ -128,6 +128,46 @@ public class PurchaseOrdersController(AppDbContext db) : ControllerBase
         return Ok(new { success = true, data = new { po.Id } });
     }
 
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Edit(int id, [FromBody] EditPORequest req)
+    {
+        if (req.Lines == null || req.Lines.Count == 0)
+            return BadRequest(new { success = false, error = "PO must have at least one line." });
+
+        var po = await db.PurchaseOrders
+            .Include(p => p.Lines)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (po is null)
+            return NotFound(new { success = false, error = "Purchase order not found." });
+
+        if (po.Status != POStatus.Open)
+            return BadRequest(new { success = false, error = "Only open orders can be edited." });
+
+        db.POLines.RemoveRange(po.Lines);
+        po.Notes = req.Notes;
+
+        foreach (var line in req.Lines)
+        {
+            var part = await db.Parts.FindAsync(line.PartId);
+            if (part is null)
+                return BadRequest(new { success = false, error = $"Part ID {line.PartId} not found." });
+
+            db.POLines.Add(new POLine
+            {
+                PurchaseOrderId = po.Id,
+                PartId = line.PartId,
+                QtyOrdered = line.QtyOrdered,
+                QtyReceived = 0,
+                UnitCost = line.UnitCost
+            });
+        }
+
+        await db.SaveChangesAsync();
+        return Ok(new { success = true, data = new { } });
+    }
+
     [HttpPut("{id}/receive")]
     public async Task<IActionResult> ReceiveStock(int id, [FromBody] ReceiveStockRequest req)
     {
@@ -204,6 +244,7 @@ public class PurchaseOrdersController(AppDbContext db) : ControllerBase
 }
 
 public record CreatePORequest(int SupplierId, List<POLineRequest> Lines, string? Notes);
+public record EditPORequest(List<POLineRequest> Lines, string? Notes);
 public record POLineRequest(int PartId, int QtyOrdered, decimal UnitCost);
 public record ReceiveStockRequest(List<ReceiveLineRequest> Lines);
 public record ReceiveLineRequest(int LineId, int QtyReceiving);

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Printer, RefreshCw, TrendingUp, ShoppingCart, RotateCcw, CreditCard, Package, BarChart2, Truck } from 'lucide-react';
+import { Printer, RefreshCw, TrendingUp, ShoppingCart, RotateCcw, CreditCard, Package, BarChart2, Truck, DollarSign } from 'lucide-react';
 import { api } from '../../api/client';
 import './ReportsPage.css';
 
@@ -58,6 +58,11 @@ export default function ReportsPage() {
   const [loading,       setLoading]       = useState(false);
   const [error,         setError]         = useState(null);
 
+  const [tillDate,      setTillDate]      = useState(today());
+  const [tillData,      setTillData]      = useState(null);
+  const [tillLoading,   setTillLoading]   = useState(false);
+  const [tillError,     setTillError]     = useState(null);
+
   const slipRef   = useRef(null);
   const navigate  = useNavigate();
 
@@ -89,6 +94,19 @@ export default function ReportsPage() {
   }, [from, to]);
 
   useEffect(() => { load(); }, [load]);
+
+  const loadTill = useCallback(async () => {
+    setTillLoading(true);
+    setTillError(null);
+    try {
+      const res = await api.getTillClose(tillDate);
+      if (res?.success) setTillData(res.data);
+      else setTillError(res?.error ?? 'Failed to load till data.');
+    } catch { setTillError('Cannot reach server.'); }
+    finally { setTillLoading(false); }
+  }, [tillDate]);
+
+  useEffect(() => { if (tab === 'tillclose') loadTill(); }, [tab, loadTill]);
 
   const maxDaily   = Math.max(...daily.map(d => d.total), 1);
   const maxSpend   = Math.max(...supplierSpend.map(s => s.totalSpend), 1);
@@ -176,6 +194,14 @@ export default function ReportsPage() {
             <span className="rep-kpi-value warning">
               {fmtR(supplierSpend.reduce((a, s) => a + s.totalSpend, 0))}
             </span>
+          </div>
+        </button>
+
+        <button className={`rep-kpi-card rep-kpi-btn ${tab === 'tillclose' ? 'active' : ''}`} onClick={() => setTab('tillclose')}>
+          <div className="rep-kpi-icon-wrap success-bg"><DollarSign size={16} /></div>
+          <div>
+            <span className="rep-kpi-label">Till Close</span>
+            <span className="rep-kpi-value success">Cash-Up</span>
           </div>
         </button>
 
@@ -538,6 +564,56 @@ export default function ReportsPage() {
               </tfoot>
             </RepTable>
           )
+        )}
+
+        {/* ── Till Close ── */}
+        {tab === 'tillclose' && (
+          <div className="rep-till-wrap">
+            <div className="rep-till-toolbar">
+              <label className="rep-range-label">Date</label>
+              <input type="date" className="rep-date" value={tillDate} onChange={e => setTillDate(e.target.value)} />
+              <button className="rep-btn rep-btn-refresh" onClick={loadTill} disabled={tillLoading}>
+                <RefreshCw size={14} className={tillLoading ? 'rep-spin' : ''} />
+                {tillLoading ? 'Loading…' : 'Load'}
+              </button>
+            </div>
+
+            {tillError && <div className="rep-error">{tillError}</div>}
+
+            {tillData && !tillLoading && (
+              <div className="rep-till-grid">
+
+                <div className="rep-till-card rep-till-cash">
+                  <div className="rep-till-card-label">Cash</div>
+                  <div className="rep-till-card-count">{tillData.cashCount} transaction{tillData.cashCount !== 1 ? 's' : ''}</div>
+                  <div className="rep-till-card-amount">{fmtR(tillData.cashTotal)}</div>
+                </div>
+
+                <div className="rep-till-card rep-till-card-card">
+                  <div className="rep-till-card-label">Card</div>
+                  <div className="rep-till-card-count">{tillData.cardCount} transaction{tillData.cardCount !== 1 ? 's' : ''}</div>
+                  <div className="rep-till-card-amount">{fmtR(tillData.cardTotal)}</div>
+                </div>
+
+                <div className="rep-till-card rep-till-account">
+                  <div className="rep-till-card-label">Account</div>
+                  <div className="rep-till-card-count">{tillData.accountCount} transaction{tillData.accountCount !== 1 ? 's' : ''}</div>
+                  <div className="rep-till-card-amount">{fmtR(tillData.accountTotal)}</div>
+                </div>
+
+                <div className="rep-till-card rep-till-total">
+                  <div className="rep-till-card-label">Total for Day</div>
+                  <div className="rep-till-card-count">{tillData.totalCount} transaction{tillData.totalCount !== 1 ? 's' : ''}</div>
+                  <div className="rep-till-card-amount rep-till-total-amt">{fmtR(tillData.totalValue)}</div>
+                </div>
+
+              </div>
+            )}
+
+            {!tillLoading && !tillData && !tillError && (
+              <p className="rep-empty">Select a date and click Load.</p>
+            )}
+          </div>
         )}
 
       </div>

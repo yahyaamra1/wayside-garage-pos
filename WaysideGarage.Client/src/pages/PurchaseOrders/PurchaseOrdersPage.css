@@ -227,6 +227,13 @@
 
 .po-detail-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
+.po-edit-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.po-edit-btn:hover { color: var(--accent-light); border-color: var(--accent-light); }
+
 .po-cancel-btn {
   background: transparent;
   border: 1px solid var(--danger);
