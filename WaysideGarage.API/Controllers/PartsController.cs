@@ -226,9 +226,14 @@ public class PartsController(AppDbContext db) : ControllerBase
         if (file is null || file.Length == 0)
             return BadRequest(new { success = false, error = "No file uploaded." });
 
-        var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
-        if (!allowed.Contains(file.ContentType.ToLower()))
-            return BadRequest(new { success = false, error = "Only JPEG, PNG and WebP images are allowed." });
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var ext = Path.GetExtension(file.FileName).ToLower();
+        if (!allowedExtensions.Contains(ext))
+            return BadRequest(new { success = false, error = "Only JPG, PNG, and WebP images are allowed." });
+
+        var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+        if (!allowedMimeTypes.Contains(file.ContentType.ToLower()))
+            return BadRequest(new { success = false, error = "Invalid file type." });
 
         if (file.Length > 5 * 1024 * 1024)
             return BadRequest(new { success = false, error = "Image must be under 5MB." });
@@ -237,8 +242,12 @@ public class PartsController(AppDbContext db) : ControllerBase
         if (part is null)
             return NotFound(new { success = false, error = "Part not found." });
 
-        var ext = Path.GetExtension(file.FileName).ToLower();
-        var fileName = $"part-{id}{ext}";
+        var safeExt = file.ContentType.ToLower() switch {
+            "image/png" => ".png",
+            "image/webp" => ".webp",
+            _ => ".jpg"
+        };
+        var fileName = $"part-{id}{safeExt}";
         var folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "parts");
         Directory.CreateDirectory(folder);
         var filePath = Path.Combine(folder, fileName);

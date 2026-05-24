@@ -35,7 +35,7 @@ public class UsersController(AppDbContext db) : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(req.Username)) return BadRequest(new { success = false, error = "Username is required." });
         if (string.IsNullOrWhiteSpace(req.Password)) return BadRequest(new { success = false, error = "Password is required." });
-        if (req.Password.Length < 6) return BadRequest(new { success = false, error = "Password must be at least 6 characters." });
+        if (req.Password.Length < 8) return BadRequest(new { success = false, error = "Password must be at least 8 characters." });
         if (string.IsNullOrWhiteSpace(req.FullName)) return BadRequest(new { success = false, error = "Full name is required." });
 
         var exists = await db.Users.AnyAsync(u => u.Username.ToLower() == req.Username.Trim().ToLower());
@@ -80,8 +80,25 @@ public class UsersController(AppDbContext db) : ControllerBase
 
         return Ok(new { success = true, data = new { } });
     }
+
+    [HttpPatch("{id}/password")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.NewPassword) || req.NewPassword.Length < 8)
+            return BadRequest(new { success = false, error = "Password must be at least 8 characters." });
+
+        var user = await db.Users.FindAsync(id);
+        if (user is null)
+            return NotFound(new { success = false, error = "User not found." });
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+        await db.SaveChangesAsync();
+        return Ok(new { success = true });
+    }
 }
 
 public record CreateUserRequest(string Username, string Password, string FullName, string Role, bool AllowCash);
 public record SetAllowCashRequest(bool AllowCash);
 public record SetActiveRequest(bool IsActive);
+public record ChangePasswordRequest(string NewPassword);

@@ -8,7 +8,7 @@ namespace WaysideGarage.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Roles = "Admin")]
 public class ReportsController(AppDbContext db) : ControllerBase
 {
     // ── Summary (date range) ─────────────────────────────────────────────

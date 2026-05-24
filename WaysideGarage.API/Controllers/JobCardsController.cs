@@ -128,10 +128,13 @@ public class JobCardsController(AppDbContext db) : ControllerBase
 
         foreach (var line in req.Lines ?? [])
         {
+            if (!Enum.TryParse<JobLineType>(line.Type, out var lineType))
+                return BadRequest(new { success = false, error = $"Invalid line type: {line.Type}." });
+
             db.JobCardLines.Add(new JobCardLine
             {
                 JobCardId = job.Id,
-                Type = Enum.Parse<JobLineType>(line.Type),
+                Type = lineType,
                 Description = line.Description.Trim(),
                 UnitPrice = line.UnitPrice,
                 Qty = line.Qty,
@@ -167,10 +170,13 @@ public class JobCardsController(AppDbContext db) : ControllerBase
 
         foreach (var line in req.Lines ?? [])
         {
+            if (!Enum.TryParse<JobLineType>(line.Type, out var lineType))
+                return BadRequest(new { success = false, error = $"Invalid line type: {line.Type}." });
+
             db.JobCardLines.Add(new JobCardLine
             {
                 JobCardId = job.Id,
-                Type = Enum.Parse<JobLineType>(line.Type),
+                Type = lineType,
                 Description = line.Description.Trim(),
                 UnitPrice = line.UnitPrice,
                 Qty = line.Qty,

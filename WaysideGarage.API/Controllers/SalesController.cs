@@ -62,6 +62,15 @@ public class SalesController(AppDbContext db) : ControllerBase
             }
 
             var subTotal = req.Lines.Sum(l => l.Qty * l.UnitPrice * (1 - l.DiscountPct / 100m));
+
+            if (req.DiscountAmount < 0)
+                return BadRequest(new { success = false, error = "Discount cannot be negative." });
+            if (req.DiscountAmount > subTotal)
+                return BadRequest(new { success = false, error = "Discount cannot exceed the subtotal." });
+
+            if (!Enum.TryParse<PaymentMethod>(req.PaymentMethod, out var paymentMethod))
+                return BadRequest(new { success = false, error = "Invalid payment method." });
+
             var total = subTotal - req.DiscountAmount;
 
             var sale = new Sale
@@ -72,7 +81,7 @@ public class SalesController(AppDbContext db) : ControllerBase
                 SubTotal = subTotal,
                 DiscountAmount = req.DiscountAmount,
                 Total = total,
-                PaymentMethod = Enum.Parse<PaymentMethod>(req.PaymentMethod),
+                PaymentMethod = paymentMethod,
                 Notes = req.Notes
             };
 
@@ -116,10 +125,11 @@ public class SalesController(AppDbContext db) : ControllerBase
                     && !string.IsNullOrWhiteSpace(cust.Email))
                 {
                     var pct = (cust.Balance / cust.CreditLimit * 100).ToString("0");
+                    var encodedName = System.Net.WebUtility.HtmlEncode(cust.Name);
                     var body = $"""
                         <html><body style="font-family:Arial,sans-serif;color:#333">
                         <h2 style="color:#c0392b">Account Balance Alert</h2>
-                        <p>Dear {cust.Name},</p>
+                        <p>Dear {encodedName},</p>
                         <p>Your account balance at <strong>Wayside Garage &amp; Motor Spares</strong>
                         has reached <strong>R {cust.Balance:F2}</strong> ({pct}% of your
                         R {cust.CreditLimit:F2} credit limit).</p>

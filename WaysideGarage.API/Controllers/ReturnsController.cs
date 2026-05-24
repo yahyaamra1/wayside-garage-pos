@@ -65,7 +65,8 @@ public class ReturnsController(AppDbContext db) : ControllerBase
                 return BadRequest(new { success = false, error = $"Cannot return {line.Qty} of {saleLine.Part.PartNo} — only {available} available to return." });
         }
 
-        var outcome = Enum.Parse<ReturnOutcome>(req.Outcome);
+        if (!Enum.TryParse<ReturnOutcome>(req.Outcome, out var outcome))
+            return BadRequest(new { success = false, error = "Invalid return outcome." });
 
         using var tx = await db.Database.BeginTransactionAsync();
         try

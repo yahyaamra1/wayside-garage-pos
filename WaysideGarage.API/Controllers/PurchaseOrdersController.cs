@@ -81,6 +81,7 @@ public class PurchaseOrdersController(AppDbContext db) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CreatePORequest req)
     {
         if (req.Lines == null || req.Lines.Count == 0)
@@ -227,6 +228,7 @@ public class PurchaseOrdersController(AppDbContext db) : ControllerBase
     }
 
     [HttpPut("{id}/cancel")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Cancel(int id)
     {
         var po = await db.PurchaseOrders.FindAsync(id);

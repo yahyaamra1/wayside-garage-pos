@@ -1,5 +1,7 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WaysideGarage.API.Services;
@@ -40,11 +42,26 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddHostedService<LowStockEmailService>();
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("login", opt =>
+    {
+        opt.PermitLimit = 5;
+        opt.Window = TimeSpan.FromMinutes(5);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+    options.RejectionStatusCode = 429;
+});
+
 // In production the React app is served from wwwroot — CORS only needed in dev
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddCors(opt =>
-        opt.AddDefaultPolicy(p => p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
+        opt.AddDefaultPolicy(p => p
+            .WithOrigins("http://localhost:5173", "https://localhost:5173")
+            .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
+            .WithHeaders("Authorization", "Content-Type")));
 }
 
 var app = builder.Build();
@@ -123,6 +140,18 @@ app.UseExceptionHandler(err => err.Run(async ctx =>
     await ctx.Response.WriteAsJsonAsync(new { success = false, error = "An unexpected error occurred." });
 }));
 
+app.UseHttpsRedirection();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
+    await next();
+});
+
 if (builder.Environment.IsDevelopment())
     app.UseCors();
 
@@ -132,6 +161,7 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.MapControllers();
 
 // Fallback for React client-side routing
