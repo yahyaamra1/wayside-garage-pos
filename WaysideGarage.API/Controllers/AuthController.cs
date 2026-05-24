@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 
 namespace WaysideGarage.API.Controllers;
@@ -43,7 +44,7 @@ internal static class LoginAttemptTracker
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(AppDbContext db, IConfiguration config) : ControllerBase
+public class AuthController(AppDbContext db, IConfiguration config, AuditService audit) : ControllerBase
 {
     [HttpPost("login")]
     [EnableRateLimiting("login")]
@@ -53,7 +54,10 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             return BadRequest(new { success = false, error = "Username and password are required." });
 
         if (LoginAttemptTracker.IsLockedOut(req.Username))
+        {
+            await audit.LogAsync("Login.Blocked", "User", null, $"Blocked login attempt for username: {req.Username}");
             return StatusCode(429, new { success = false, error = "Too many failed attempts. Try again in 15 minutes." });
+        }
 
         var user = await db.Users
             .FirstOrDefaultAsync(u => u.Username == req.Username && u.IsActive);
@@ -61,6 +65,7 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
         if (user is null || !BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
         {
             LoginAttemptTracker.RecordFailure(req.Username);
+            await audit.LogAsync("Login.Failure", "User", null, $"Failed login attempt for username: {req.Username}");
             return Unauthorized(new { success = false, error = "Invalid username or password." });
         }
 
@@ -80,6 +85,8 @@ public class AuthController(AppDbContext db, IConfiguration config) : Controller
             expires: DateTime.UtcNow.AddMinutes(expiry),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
+
+        await audit.LogAsync("Login.Success", "User", user.Id.ToString(), $"{user.Username} logged in", user.Id, user.Username);
 
         return Ok(new
         {

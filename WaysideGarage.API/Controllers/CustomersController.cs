@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 using WaysideGarage.Core.Models;
 
@@ -10,7 +11,7 @@ namespace WaysideGarage.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class CustomersController(AppDbContext db) : ControllerBase
+public class CustomersController(AppDbContext db, AuditService audit) : ControllerBase
 {
     // ── POS quick search ─────────────────────────────────────────────────
 
@@ -225,6 +226,9 @@ public class CustomersController(AppDbContext db) : ControllerBase
 
         db.Customers.Add(customer);
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("Customer.Create", "Customer", customer.Id.ToString(), $"{req.Name}");
+
         return Ok(new { success = true, data = new { customer.Id } });
     }
 
@@ -247,6 +251,9 @@ public class CustomersController(AppDbContext db) : ControllerBase
         customer.CreditLimit = req.IsTradeAccount ? req.CreditLimit : 0;
 
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("Customer.Update", "Customer", id.ToString(), $"Customer {id} updated");
+
         return Ok(new { success = true, data = new { } });
     }
 
@@ -307,6 +314,8 @@ public class CustomersController(AppDbContext db) : ControllerBase
             await tx.RollbackAsync();
             return StatusCode(500, new { success = false, error = "Payment failed." });
         }
+
+        await audit.LogAsync("Customer.Payment", "Customer", id.ToString(), $"Payment R {req.Amount:F2} recorded for customer {id}");
 
         return Ok(new { success = true, data = new { newBalance = customer.Balance } });
     }

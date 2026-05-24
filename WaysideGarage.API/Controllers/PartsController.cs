@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 using WaysideGarage.Core.Models;
 
@@ -10,7 +11,7 @@ namespace WaysideGarage.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class PartsController(AppDbContext db) : ControllerBase
+public class PartsController(AppDbContext db, AuditService audit) : ControllerBase
 {
     // ── POS search (fast, minimal payload) ──────────────────────────────
 
@@ -168,6 +169,8 @@ public class PartsController(AppDbContext db) : ControllerBase
         db.Parts.Add(part);
         await db.SaveChangesAsync();
 
+        await audit.LogAsync("Part.Create", "Part", part.Id.ToString(), $"{req.PartNo} — {req.Description}");
+
         return Ok(new { success = true, data = new { part.Id } });
     }
 
@@ -199,6 +202,9 @@ public class PartsController(AppDbContext db) : ControllerBase
         part.SupplierInvoiceNo = req.SupplierInvoiceNo?.Trim();
 
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("Part.Update", "Part", id.ToString(), $"Part {id} updated");
+
         return Ok(new { success = true, data = new { } });
     }
 
@@ -214,6 +220,9 @@ public class PartsController(AppDbContext db) : ControllerBase
 
         part.IsActive = false;
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("Part.Deactivate", "Part", id.ToString(), $"Part {id} deactivated");
+
         return Ok(new { success = true, data = new { } });
     }
 
@@ -306,6 +315,8 @@ public class PartsController(AppDbContext db) : ControllerBase
             await tx.RollbackAsync();
             return StatusCode(500, new { success = false, error = "Adjustment failed." });
         }
+
+        await audit.LogAsync("Stock.Adjust", "Part", id.ToString(), $"Part {id} · adjustment: {req.AdjustmentQty:+#;-#;0} · reason: {req.Reason}");
 
         return Ok(new { success = true, data = new { newQty } });
     }

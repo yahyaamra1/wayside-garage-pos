@@ -127,6 +127,20 @@ export const api = {
   setUserAllowCash: (id, allowCash) => request(`/users/${id}/allowcash`, { method: 'PATCH', body: JSON.stringify({ allowCash }) }),
   setUserActive: (id, isActive) => request(`/users/${id}/active`, { method: 'PATCH', body: JSON.stringify({ isActive }) }),
 
+  // Audit Logs
+  listAuditLogs: (params) => {
+    const qs = new URLSearchParams();
+    if (params?.action) qs.set('action', params.action);
+    if (params?.userId) qs.set('userId', params.userId);
+    if (params?.from) qs.set('from', params.from);
+    if (params?.to) qs.set('to', params.to);
+    if (params?.page) qs.set('page', params.page);
+    const q = qs.toString();
+    return request(`/audit${q ? `?${q}` : ''}`);
+  },
+  getAuditActions: () => request('/audit/actions'),
+  getAuditUsers: () => request('/audit/users'),
+
   // Purchase Orders
   listPOs: (status) =>
     request(`/purchaseorders${status ? `?status=${status}` : ''}`),

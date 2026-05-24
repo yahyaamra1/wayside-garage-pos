@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 using WaysideGarage.Core.Models;
 
@@ -10,7 +11,7 @@ namespace WaysideGarage.API.Controllers;
 [ApiController]
 [Route("api/purchaseorders")]
 [Authorize]
-public class PurchaseOrdersController(AppDbContext db) : ControllerBase
+public class PurchaseOrdersController(AppDbContext db, AuditService audit) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? status)
@@ -126,6 +127,9 @@ public class PurchaseOrdersController(AppDbContext db) : ControllerBase
         }
 
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("PO.Create", "PurchaseOrder", po.Id.ToString(), $"PO #{po.Id:D5} · {supplier.Name} · {req.Lines.Count} lines");
+
         return Ok(new { success = true, data = new { po.Id } });
     }
 
@@ -166,6 +170,9 @@ public class PurchaseOrdersController(AppDbContext db) : ControllerBase
         }
 
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("PO.Edit", "PurchaseOrder", id.ToString(), $"PO #{id:D5} edited");
+
         return Ok(new { success = true, data = new { } });
     }
 
@@ -218,6 +225,8 @@ public class PurchaseOrdersController(AppDbContext db) : ControllerBase
             await db.SaveChangesAsync();
             await tx.CommitAsync();
 
+            await audit.LogAsync("PO.Receive", "PurchaseOrder", id.ToString(), $"Stock received on PO #{id:D5}");
+
             return Ok(new { success = true, data = new { status = po.Status.ToString() } });
         }
         catch
@@ -240,6 +249,8 @@ public class PurchaseOrdersController(AppDbContext db) : ControllerBase
 
         po.Status = POStatus.Cancelled;
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("PO.Cancel", "PurchaseOrder", id.ToString(), $"PO #{id:D5} cancelled");
 
         return Ok(new { success = true, data = new { } });
     }

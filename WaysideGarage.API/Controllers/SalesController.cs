@@ -11,7 +11,7 @@ namespace WaysideGarage.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class SalesController(AppDbContext db) : ControllerBase
+public class SalesController(AppDbContext db, AuditService audit) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateSale([FromBody] CreateSaleRequest req)
@@ -152,6 +152,8 @@ public class SalesController(AppDbContext db) : ControllerBase
                     await db.SaveChangesAsync();
                 }
             }
+
+            await audit.LogAsync("Sale.Create", "Sale", sale.Id.ToString(), $"Invoice {sale.Id} · R {sale.Total:F2} · {req.PaymentMethod}");
 
             return Ok(new { success = true, data = new { sale.Id } });
         }

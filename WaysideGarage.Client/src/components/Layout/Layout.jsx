@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Package, RotateCcw, FileText, Users, BarChart2, LogOut, UserCog, Mail, Wrench, Truck, Tag } from 'lucide-react';
+import { ShoppingCart, Package, RotateCcw, FileText, Users, BarChart2, LogOut, UserCog, Mail, Wrench, Truck, Tag, Shield } from 'lucide-react';
 import './Layout.css';
 
 const NAV = [
@@ -14,6 +14,7 @@ const NAV = [
   { to: '/categories', icon: Tag,          label: 'Categories',  adminOnly: true },
   { to: '/users',      icon: UserCog,      label: 'Users',       adminOnly: true },
   { to: '/email-queue',icon: Mail,         label: 'Email Queue', adminOnly: true },
+  { to: '/audit',      icon: Shield,       label: 'Audit Log',   adminOnly: true },
 ];
 
 export default function Layout() {

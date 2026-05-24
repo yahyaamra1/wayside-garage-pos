@@ -11,7 +11,7 @@ namespace WaysideGarage.API.Controllers;
 [ApiController]
 [Route("api/returns")]
 [Authorize]
-public class ReturnsController(AppDbContext db) : ControllerBase
+public class ReturnsController(AppDbContext db, AuditService audit) : ControllerBase
 {
     // ── Customer Returns ─────────────────────────────────────────────────
 
@@ -108,6 +108,8 @@ public class ReturnsController(AppDbContext db) : ControllerBase
             await db.SaveChangesAsync();
             await tx.CommitAsync();
 
+            await audit.LogAsync("Return.Customer", "Sale", req.SaleId.ToString(), $"Return on sale {req.SaleId} · {req.Lines.Count} line(s)");
+
             return Ok(new { success = true, data = new { refundTotal = totalRefund } });
         }
         catch
@@ -189,6 +191,8 @@ public class ReturnsController(AppDbContext db) : ControllerBase
 
             await db.SaveChangesAsync();
             await tx.CommitAsync();
+
+            await audit.LogAsync("Return.Supplier", "Supplier", req.SupplierId.ToString(), $"Supplier return · 1 line(s)");
 
             return Ok(new { success = true, data = new { totalCost = part.CostPrice * req.Qty } });
         }

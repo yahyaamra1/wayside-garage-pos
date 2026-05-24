@@ -21,6 +21,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<EmailQueue> EmailQueue => Set<EmailQueue>();
     public DbSet<JobCard> JobCards => Set<JobCard>();
     public DbSet<JobCardLine> JobCardLines => Set<JobCardLine>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -75,6 +76,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.Property(l => l.UnitPrice).HasColumnType("decimal(18,2)");
             e.Property(l => l.Qty).HasColumnType("decimal(10,2)");
+        });
+
+        b.Entity<AuditLog>(e =>
+        {
+            e.Property(a => a.Username).HasMaxLength(100);
+            e.Property(a => a.Action).HasMaxLength(100);
+            e.Property(a => a.EntityType).HasMaxLength(50);
+            e.Property(a => a.EntityId).HasMaxLength(50);
+            e.Property(a => a.IpAddress).HasMaxLength(50);
+            e.HasIndex(a => a.Timestamp);
+            e.HasIndex(a => a.UserId);
+            e.HasIndex(a => a.Action);
         });
 
         // Seed data

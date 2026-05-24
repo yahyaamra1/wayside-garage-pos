@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 using WaysideGarage.Core.Models;
 
@@ -9,7 +10,7 @@ namespace WaysideGarage.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = "Admin")]
-public class UsersController(AppDbContext db) : ControllerBase
+public class UsersController(AppDbContext db, AuditService audit) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> List()
@@ -54,6 +55,8 @@ public class UsersController(AppDbContext db) : ControllerBase
         db.Users.Add(user);
         await db.SaveChangesAsync();
 
+        await audit.LogAsync("User.Create", "User", user.Id.ToString(), $"User '{req.Username}' created with role {req.Role}");
+
         return Ok(new { success = true, data = new { user.Id } });
     }
 
@@ -94,6 +97,9 @@ public class UsersController(AppDbContext db) : ControllerBase
 
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("User.PasswordChange", "User", id.ToString(), $"Password changed for user {id}");
+
         return Ok(new { success = true });
     }
 }

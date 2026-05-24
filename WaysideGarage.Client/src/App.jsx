@@ -12,6 +12,7 @@ import EmailQueuePage from './pages/EmailQueue/EmailQueuePage';
 import JobCardsPage from './pages/JobCards/JobCardsPage';
 import SuppliersPage from './pages/Suppliers/SuppliersPage';
 import CategoriesPage from './pages/Categories/CategoriesPage';
+import AuditLogPage from './pages/AuditLog/AuditLogPage';
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('wg_token');
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="email-queue" element={<EmailQueuePage />} />
+          <Route path="audit" element={<AuditLogPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

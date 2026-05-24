@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WaysideGarage.API.Services;
 using WaysideGarage.Core.Data;
 using WaysideGarage.Core.Models;
 
@@ -10,7 +11,7 @@ namespace WaysideGarage.API.Controllers;
 [ApiController]
 [Route("api/jobcards")]
 [Authorize]
-public class JobCardsController(AppDbContext db) : ControllerBase
+public class JobCardsController(AppDbContext db, AuditService audit) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? status, [FromQuery] string? q)
@@ -143,6 +144,9 @@ public class JobCardsController(AppDbContext db) : ControllerBase
         }
 
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("JobCard.Create", "JobCard", job.Id.ToString(), $"{job.JobNo} · {req.VehicleReg}");
+
         return Ok(new { success = true, data = new { job.Id, job.JobNo } });
     }
 
@@ -185,6 +189,9 @@ public class JobCardsController(AppDbContext db) : ControllerBase
         }
 
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("JobCard.Update", "JobCard", id.ToString(), $"Job card {id} updated");
+
         return Ok(new { success = true, data = new { } });
     }
 
@@ -206,6 +213,9 @@ public class JobCardsController(AppDbContext db) : ControllerBase
             job.CompletedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
+
+        await audit.LogAsync("JobCard.Status", "JobCard", id.ToString(), $"{job.JobNo} status → {req.Status}");
+
         return Ok(new { success = true, data = new { status = newStatus.ToString() } });
     }
 
