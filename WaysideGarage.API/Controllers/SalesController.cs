@@ -21,6 +21,14 @@ public class SalesController(AppDbContext db, AuditService audit) : ControllerBa
 
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+        // Load parts up front — pricing is always taken from the database, never the client.
+        var partIds = req.Lines.Select(l => l.PartId).Distinct().ToList();
+        var parts = await db.Parts.Where(p => partIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id);
+
+        foreach (var line in req.Lines)
+            if (!parts.ContainsKey(line.PartId))
+                return BadRequest(new { success = false, error = $"Part ID {line.PartId} not found." });
+
         // Cash restriction check
         if (req.PaymentMethod == "Cash")
         {
@@ -35,7 +43,7 @@ public class SalesController(AppDbContext db, AuditService audit) : ControllerBa
             var customer = await db.Customers.FindAsync(req.CustomerId.Value);
             if (customer is { IsTradeAccount: true })
             {
-                var saleTotal = req.Lines.Sum(l => l.Qty * l.UnitPrice * (1 - l.DiscountPct / 100m)) - req.DiscountAmount;
+                var saleTotal = req.Lines.Sum(l => l.Qty * parts[l.PartId].SellPrice * (1 - l.DiscountPct / 100m)) - req.DiscountAmount;
                 if (customer.Balance + saleTotal > customer.CreditLimit)
                 {
                     return Ok(new
@@ -54,14 +62,12 @@ public class SalesController(AppDbContext db, AuditService audit) : ControllerBa
             // Validate stock
             foreach (var line in req.Lines)
             {
-                var part = await db.Parts.FindAsync(line.PartId);
-                if (part is null)
-                    return BadRequest(new { success = false, error = $"Part ID {line.PartId} not found." });
+                var part = parts[line.PartId];
                 if (part.StockQty < line.Qty)
                     return BadRequest(new { success = false, error = $"Insufficient stock for {part.PartNo}. Available: {part.StockQty}." });
             }
 
-            var subTotal = req.Lines.Sum(l => l.Qty * l.UnitPrice * (1 - l.DiscountPct / 100m));
+            var subTotal = req.Lines.Sum(l => l.Qty * parts[l.PartId].SellPrice * (1 - l.DiscountPct / 100m));
 
             if (req.DiscountAmount < 0)
                 return BadRequest(new { success = false, error = "Discount cannot be negative." });
@@ -90,18 +96,18 @@ public class SalesController(AppDbContext db, AuditService audit) : ControllerBa
 
             foreach (var line in req.Lines)
             {
-                var part = await db.Parts.FindAsync(line.PartId);
-                if (part!.StockQty < line.Qty)
+                var part = parts[line.PartId];
+                if (part.StockQty < line.Qty)
                     return BadRequest(new { success = false, error = $"Insufficient stock for {part.PartNo}. Available: {part.StockQty}." });
 
-                var lineTotal = line.Qty * line.UnitPrice * (1 - line.DiscountPct / 100m);
+                var lineTotal = line.Qty * part.SellPrice * (1 - line.DiscountPct / 100m);
 
                 db.SaleLines.Add(new SaleLine
                 {
                     SaleId = sale.Id,
                     PartId = line.PartId,
                     Qty = line.Qty,
-                    UnitPrice = line.UnitPrice,
+                    UnitPrice = part.SellPrice,
                     DiscountPct = line.DiscountPct,
                     LineTotal = lineTotal
                 });
