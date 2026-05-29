@@ -91,6 +91,9 @@ public class SalesController(AppDbContext db, AuditService audit) : ControllerBa
             foreach (var line in req.Lines)
             {
                 var part = await db.Parts.FindAsync(line.PartId);
+                if (part!.StockQty < line.Qty)
+                    return BadRequest(new { success = false, error = $"Insufficient stock for {part.PartNo}. Available: {part.StockQty}." });
+
                 var lineTotal = line.Qty * line.UnitPrice * (1 - line.DiscountPct / 100m);
 
                 db.SaleLines.Add(new SaleLine
@@ -103,7 +106,7 @@ public class SalesController(AppDbContext db, AuditService audit) : ControllerBa
                     LineTotal = lineTotal
                 });
 
-                part!.StockQty -= line.Qty;
+                part.StockQty -= line.Qty;
             }
 
             // Update customer balance for account sales
