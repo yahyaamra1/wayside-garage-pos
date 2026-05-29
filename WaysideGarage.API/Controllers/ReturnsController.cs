@@ -102,7 +102,7 @@ public class ReturnsController(AppDbContext db, AuditService audit) : Controller
             {
                 var customer = await db.Customers.FindAsync(sale.CustomerId.Value);
                 if (customer != null)
-                    customer.Balance = Math.Max(0, customer.Balance - totalRefund);
+                    customer.Balance -= totalRefund;
             }
 
             await db.SaveChangesAsync();
