@@ -72,6 +72,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(p => p.Amount).HasColumnType("decimal(18,2)");
         });
 
+        b.Entity<JobCard>(e =>
+        {
+            e.HasOne(j => j.CreatedBy)
+                .WithMany()
+                .HasForeignKey(j => j.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         b.Entity<JobCardLine>(e =>
         {
             e.Property(l => l.UnitPrice).HasColumnType("decimal(18,2)");
